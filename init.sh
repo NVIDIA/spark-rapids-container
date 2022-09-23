@@ -1,4 +1,3 @@
-
 #!/bin/bash
 # Copyright (c) 2022, NVIDIA CORPORATION.
 #
@@ -165,50 +164,62 @@ set_crontab_alluxio_log() {
   rm cron_bkp
 }
 
+start_ssh() {
+  # Start SSH
+  service ssh start
+}
 
-# create the folder for NVMe caching
-mkdir -p /local_disk0/cache
-chown ubuntu:ubuntu /local_disk0/cache
+start_alluxio() {
 
-# create the folder for domain socket
-mkdir -p /local_disk0/alluxio_domain_socket
-chown ubuntu:ubuntu /local_disk0/alluxio_domain_socket
+  # create the folder for NVMe caching
+  mkdir -p /local_disk0/cache
+  chown ubuntu:ubuntu /local_disk0/cache
 
-set_alluxio_property alluxio.master.hostname "${DB_DRIVER_IP}"
-set_alluxio_property alluxio.underfs.s3.inherit.acl false
-set_alluxio_property alluxio.underfs.s3.default.mode 0755
-set_alluxio_property alluxio.worker.tieredstore.levels "1"
-set_alluxio_property alluxio.worker.data.server.domain.socket.address /local_disk0/alluxio_domain_socket
-set_alluxio_property alluxio.worker.data.server.domain.socket.as.uuid true
-set_alluxio_property alluxio.worker.network.async.cache.manager.queue.max 4000
-set_alluxio_property alluxio.user.short.circuit.preferred true
+  # create the folder for domain socket
+  mkdir -p /local_disk0/alluxio_domain_socket
+  chown ubuntu:ubuntu /local_disk0/alluxio_domain_socket
 
-set_alluxio_property alluxio.job.worker.threadpool.size 20
-set_alluxio_property alluxio.worker.network.block.writer.threads.max 2048
-set_alluxio_property alluxio.worker.network.block.reader.threads.max 2048
-set_alluxio_property alluxio.master.ufs.block.location.cache.capacity 2000000
-set_alluxio_property alluxio.master.ufs.path.cache.capacity 200000
+  set_alluxio_property alluxio.master.hostname "${DB_DRIVER_IP}"
+  set_alluxio_property alluxio.underfs.s3.inherit.acl false
+  set_alluxio_property alluxio.underfs.s3.default.mode 0755
+  set_alluxio_property alluxio.worker.tieredstore.levels "1"
+  set_alluxio_property alluxio.worker.data.server.domain.socket.address /local_disk0/alluxio_domain_socket
+  set_alluxio_property alluxio.worker.data.server.domain.socket.as.uuid true
+  set_alluxio_property alluxio.worker.network.async.cache.manager.queue.max 4000
+  set_alluxio_property alluxio.user.short.circuit.preferred true
 
-sed -i "s/localhost/${DB_DRIVER_IP}/g" /opt/alluxio-${ALLUXIO_VERSION}/conf/masters
+  set_alluxio_property alluxio.job.worker.threadpool.size 20
+  set_alluxio_property alluxio.worker.network.block.writer.threads.max 2048
+  set_alluxio_property alluxio.worker.network.block.reader.threads.max 2048
+  set_alluxio_property alluxio.master.ufs.block.location.cache.capacity 2000000
+  set_alluxio_property alluxio.master.ufs.path.cache.capacity 200000
 
-configure_nvme "${ALLUXIO_STORAGE_PERCENT}"
+  sed -i "s/localhost/${DB_DRIVER_IP}/g" /opt/alluxio-${ALLUXIO_VERSION}/conf/masters
 
-if [[ $DB_IS_DRIVER = "TRUE" ]]; then
-  # On Driver
-  set_crontab_alluxio_log "${DB_DRIVER_IP}-master"
-  doas ubuntu "ALLUXIO_MASTER_JAVA_OPTS='-Xms16g -Xmx16g' ${ALLUXIO_HOME}/bin/alluxio-start.sh master"
-else
-  # On Workers
-  set_crontab_alluxio_log "${DB_CONTAINER_IP}-worker"
-  echo "alluxio.worker.hostname=${DB_CONTAINER_IP}" >> ${ALLUXIO_SITE_PROPERTIES}
-  echo "alluxio.user.hostname=${DB_CONTAINER_IP}" >> ${ALLUXIO_SITE_PROPERTIES}
-  
-  n=0
-  until [ "$n" -ge 5 ]
-  do     
-     doas ubuntu "${ALLUXIO_HOME}/bin/alluxio-start.sh worker" && break
-     n=$((n+1)) 
-     sleep 10
-  done
+  configure_nvme "${ALLUXIO_STORAGE_PERCENT}"
+
+  if [[ $DB_IS_DRIVER = "TRUE" ]]; then
+    # On Driver
+    set_crontab_alluxio_log "${DB_DRIVER_IP}-master"
+    doas ubuntu "ALLUXIO_MASTER_JAVA_OPTS='-Xms16g -Xmx16g' ${ALLUXIO_HOME}/bin/alluxio-start.sh master"
+  else
+    # On Workers
+    set_crontab_alluxio_log "${DB_CONTAINER_IP}-worker"
+    echo "alluxio.worker.hostname=${DB_CONTAINER_IP}" >> ${ALLUXIO_SITE_PROPERTIES}
+    echo "alluxio.user.hostname=${DB_CONTAINER_IP}" >> ${ALLUXIO_SITE_PROPERTIES}
+    
+    n=0
+    until [ "$n" -ge 5 ]
+    do     
+      doas ubuntu "${ALLUXIO_HOME}/bin/alluxio-start.sh worker" && break
+      n=$((n+1)) 
+      sleep 10
+    done
+  fi
+}
+
+start_ssh
+
+if [[ "$ENABLE_ALLUXIO" = "1" ]]; then
+  start_alluxio
 fi
-

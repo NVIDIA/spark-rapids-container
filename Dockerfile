@@ -96,10 +96,14 @@ FROM databricks as databricks-plugin
 ARG DRIVER_CONF_FILE=00-custom-spark-driver-defaults.conf
 ARG JAR_FILE=rapids-4-spark_2.12-22.10.0.jar
 ARG JAR_URL=https://repo1.maven.org/maven2/com/nvidia/rapids-4-spark_2.12/22.10.0/${JAR_FILE}
+ARG INIT_SCRIPT=init.sh
 COPY ${DRIVER_CONF_FILE} /databricks/driver/conf/00-custom-spark-driver-defaults.conf
 
 WORKDIR /databricks/jars
 ADD $JAR_URL /databricks/jars/${JAR_FILE}
+
+ADD $INIT_SCRIPT /opt/spark-rapids/init.sh
+RUN chmod 755 /opt/spark-rapids/init.sh
 
 WORKDIR /databricks
 
