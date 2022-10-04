@@ -58,7 +58,8 @@ If you would like to enable the Alluxio cluster on your Databricks cluster, you 
 
 2. Under the `Advanced options`, select the `Spark` tab.
 
-3. In the `Spark config` field, add the following lines:
+3. In the `Spark config` field, add the following lines. The second 2 are good starting points when using Alluxio but could be tuned
+if needed.
 
 ```
 spark.databricks.io.cached.enabled false
@@ -68,6 +69,14 @@ spark.rapids.sql.multiThreadedRead.numThreads 40
 ```
 
 4. In the `Environment variables` field, add the line `ENABLE_ALLUXIO=1`.
+
+5. Customize Alluxio configuration using the following configs if needed. These should be added in the `Environment variables` field if you wish to change them.
+
+  - The default amount of disk space used for Alluxio on the Workers is 70%.  This can be adjusted using the configuration below. `ALLUXIO_STORAGE_PERCENT=70`
+
+  - The default heap size used by the Alluxio Master process is 16GB, this may need to be changed depending on the size of the driver node. Make sure it has enough memory for the Master and the Spark driver processes.  `ALLUXIO_MASTER_HEAP=16g`
+
+  - To copy the Alluxio Master and Worker logs off of local disk to be able to look at them after the cluster is shutdown you can configure this to some path accessible via rsync.  For instance, on Databricks this might be a path in /dbfs/.  `ALLUXIO_COPY_LOG_PATH=/dbfs/somedirectory/`
 
 5. Click `Confirm` (if the cluster is currently stopped) or `Confirm and Restart` if the cluster is currently running.
 
