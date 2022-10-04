@@ -1,4 +1,4 @@
-# RAPIDS Accelerator Docker container for Databricks 10.4 LTS
+# RAPIDS Accelerator for Apache Spark Docker container for Databricks
 
 ## Usage
 
@@ -46,7 +46,9 @@ cluster meets the prerequisites above by configuring it as follows:
 
 14. Click `Add`.
 
-15. Start the cluster.
+15. Add any other configs, such as SSH Key, Logging, or additional Spark configuration. The Docker container uses the configuration in `00-custom-spark-driver-defaults.conf` by default. When adding additional lines to `Spark config` in the UI, the configuration will override those defaults that are configured in the Docker container.
+
+16. Start the cluster.
 
 ### Enabling Alluxio in the Databricks cluster using the Docker container
 
@@ -61,6 +63,8 @@ If you would like to enable the Alluxio cluster on your Databricks cluster, you 
 ```
 spark.databricks.io.cached.enabled false
 spark.rapids.alluxio.automount.enabled true
+spark.rapids.sql.coalescing.reader.numFilterParallel 2
+spark.rapids.sql.multiThreadedRead.numThreads 40
 ```
 
 4. In the `Environment variables` field, add the line `ENABLE_ALLUXIO=1`.
