@@ -173,7 +173,7 @@ start_ssh() {
   service ssh start
 }
 
-start_alluxio() {
+config_alluxio() {
 
   # create the folder for NVMe caching
   mkdir -p /local_disk0/cache
@@ -208,7 +208,25 @@ start_alluxio() {
       set_crontab_alluxio_log "${DB_DRIVER_IP}-master"
     fi
     MASTER_HEAP_SETTING="-Xms${ALLUXIO_MASTER_HEAP} -Xmx${ALLUXIO_MASTER_HEAP}"
+
+    # start master, alluxio-start.sh will do some initialization
     doas ubuntu "ALLUXIO_MASTER_JAVA_OPTS=\"${MASTER_HEAP_SETTING}\" ${ALLUXIO_HOME}/bin/alluxio-start.sh master"
+
+    # stop master, the master process will be managed by supervisor
+    doas ubuntu "${ALLUXIO_HOME}/bin/alluxio-stop.sh master"
+
+    # add a supervisor conf to manage the master process
+    # supervisor manages processes by subprocess, here we can't use `alluxio-start.sh` as command directly because of `nohup` in it
+    cat > /etc/supervisor/conf.d/alluxio-master.conf << EOF
+[program:alluxio-master]
+command=/usr/bin/java ${MASTER_HEAP_SETTING} -cp /opt/alluxio-2.8.0/conf/::/opt/alluxio-2.8.0/assembly/alluxio-server-2.8.0.jar -Dalluxio.logger.type=MASTER_LOGGER -Dalluxio.master.audit.logger.type=MASTER_AUDIT_LOGGER -Dalluxio.home=/opt/alluxio-2.8.0 -Dalluxio.conf.dir=/opt/alluxio-2.8.0/conf -Dalluxio.logs.dir=/opt/alluxio-2.8.0/logs -Dalluxio.user.logs.dir=/opt/alluxio-2.8.0/logs/user -Dlog4j.configuration=file:/opt/alluxio-2.8.0/conf/log4j.properties -Dorg.apache.jasper.compiler.disablejsr199=true -Djava.net.preferIPv4Stack=true -Dorg.apache.ratis.thirdparty.io.netty.allocator.useCacheForAllThreads=false -XX:MetaspaceSize=256M alluxio.master.AlluxioMaster
+user=ubuntu
+autostart=true
+autorestart=true
+stderr_logfile=/opt/alluxio-2.8.0/logs/alluxio-master.err
+stdout_logfile=/opt/alluxio-2.8.0/logs/alluxio-master.out
+EOF
+
   else
     # On Workers
     if [[ -n $ALLUXIO_COPY_LOG_PATH ]]; then
@@ -216,19 +234,26 @@ start_alluxio() {
     fi
     echo "alluxio.worker.hostname=${DB_CONTAINER_IP}" >> ${ALLUXIO_SITE_PROPERTIES}
     echo "alluxio.user.hostname=${DB_CONTAINER_IP}" >> ${ALLUXIO_SITE_PROPERTIES}
-    
-    n=0
-    until [ "$n" -ge 5 ]
-    do     
-      doas ubuntu "${ALLUXIO_HOME}/bin/alluxio-start.sh worker" && break
-      n=$((n+1)) 
-      sleep 10
-    done
+
+    # add supervisor conf for worker
+    cat > /etc/supervisor/conf.d/alluxio-worker.conf << EOF
+[program:alluxio-worker]
+command=/usr/bin/java -Xmx4g -XX:MaxDirectMemorySize=4g -cp /opt/alluxio-2.8.0/conf/::/opt/alluxio-2.8.0/assembly/alluxio-server-2.8.0.jar -Dalluxio.logger.type=WORKER_LOGGER -Dalluxio.home=/opt/alluxio-2.8.0 -Dalluxio.conf.dir=/opt/alluxio-2.8.0/conf -Dalluxio.logs.dir=/opt/alluxio-2.8.0/logs -Dalluxio.user.logs.dir=/opt/alluxio-2.8.0/logs/user -Dlog4j.configuration=file:/opt/alluxio-2.8.0/conf/log4j.properties -Dorg.apache.jasper.compiler.disablejsr199=true -Djava.net.preferIPv4Stack=true -Dorg.apache.ratis.thirdparty.io.netty.allocator.useCacheForAllThreads=false alluxio.worker.AlluxioWorker
+user=ubuntu
+autostart=true
+autorestart=true
+stderr_logfile=/opt/alluxio-2.8.0/logs/alluxio-worker.err
+stdout_logfile=/opt/alluxio-2.8.0/logs/alluxio-worker.out
+EOF
+
   fi
 }
 
 start_ssh
 
 if [[ "$ENABLE_ALLUXIO" = "1" ]]; then
-  start_alluxio
+  config_alluxio
+  # start supervisord, and supervisord starts alluxio
+  # supervisord will restart alluxio if alluxio crashes
+  /usr/bin/supervisord -c /etc/supervisor/supervisord.conf
 fi
