@@ -32,6 +32,8 @@ readonly ALLUXIO_METRICS_PROPERTIES_TEMPLATE="${ALLUXIO_HOME}/conf/metrics.prope
 readonly ALLUXIO_METRICS_PROPERTIES="${ALLUXIO_HOME}/conf/metrics.properties"
 ALLUXIO_STORAGE_PERCENT=${ALLUXIO_STORAGE_PERCENT:-'70'}
 ALLUXIO_MASTER_HEAP=${ALLUXIO_MASTER_HEAP:-'16g'}
+ALLUXIO_WORKER_HEAP=${ALLUXIO_WORKER_HEAP:-'4g'}
+ALLUXIO_WORKER_DIRECT_HEAP=${ALLUXIO_WORKER_DIRECT_HEAP:-'4g'}
 # location to copy the Alluxio logs to so that they are kept after cluster is shutdown
 # recommended location would be dbfs on Databricks, path has to be accessible via rsync
 ALLUXIO_COPY_LOG_PATH=${ALLUXIO_COPY_LOG_PATH:-''}
@@ -163,7 +165,7 @@ set_crontab_alluxio_log() {
   mkdir -p $ALLUXIO_COPY_LOG_PATH/$folder
   # add crond to copy alluxio logs
   crontab -l > cron_bkp || true
-  echo "* * * * * /usr/bin/rsync -a /opt/alluxio-2.8.0/logs $ALLUXIO_COPY_LOG_PATH/$folder >/dev/null 2>&1" >> cron_bkp
+  echo "* * * * * /usr/bin/rsync -a ${ALLUXIO_HOME}/logs $ALLUXIO_COPY_LOG_PATH/$folder >/dev/null 2>&1" >> cron_bkp
   crontab cron_bkp
   rm cron_bkp
 }
@@ -219,12 +221,12 @@ config_alluxio() {
     # supervisor manages processes by subprocess, here we can't use `alluxio-start.sh` as command directly because of `nohup` in it
     cat > /etc/supervisor/conf.d/alluxio-master.conf << EOF
 [program:alluxio-master]
-command=/usr/bin/java ${MASTER_HEAP_SETTING} -cp /opt/alluxio-2.8.0/conf/::/opt/alluxio-2.8.0/assembly/alluxio-server-2.8.0.jar -Dalluxio.logger.type=MASTER_LOGGER -Dalluxio.master.audit.logger.type=MASTER_AUDIT_LOGGER -Dalluxio.home=/opt/alluxio-2.8.0 -Dalluxio.conf.dir=/opt/alluxio-2.8.0/conf -Dalluxio.logs.dir=/opt/alluxio-2.8.0/logs -Dalluxio.user.logs.dir=/opt/alluxio-2.8.0/logs/user -Dlog4j.configuration=file:/opt/alluxio-2.8.0/conf/log4j.properties -Dorg.apache.jasper.compiler.disablejsr199=true -Djava.net.preferIPv4Stack=true -Dorg.apache.ratis.thirdparty.io.netty.allocator.useCacheForAllThreads=false -XX:MetaspaceSize=256M alluxio.master.AlluxioMaster
+command=/usr/bin/java ${MASTER_HEAP_SETTING} -cp ${ALLUXIO_HOME}/conf/::${ALLUXIO_HOME}/assembly/alluxio-server-2.8.0.jar -Dalluxio.logger.type=MASTER_LOGGER -Dalluxio.master.audit.logger.type=MASTER_AUDIT_LOGGER -Dalluxio.home=${ALLUXIO_HOME} -Dalluxio.conf.dir=${ALLUXIO_HOME}/conf -Dalluxio.logs.dir=${ALLUXIO_HOME}/logs -Dalluxio.user.logs.dir=${ALLUXIO_HOME}/logs/user -Dlog4j.configuration=file:${ALLUXIO_HOME}/conf/log4j.properties -Dorg.apache.jasper.compiler.disablejsr199=true -Djava.net.preferIPv4Stack=true -Dorg.apache.ratis.thirdparty.io.netty.allocator.useCacheForAllThreads=false -XX:MetaspaceSize=256M alluxio.master.AlluxioMaster
 user=ubuntu
-autostart=true
-autorestart=true
-stderr_logfile=/opt/alluxio-2.8.0/logs/alluxio-master.err
-stdout_logfile=/opt/alluxio-2.8.0/logs/alluxio-master.out
+autostart=true ;auto start this program when supervisord starting
+autorestart=true ;supervisord auto starts this program if program crashes
+stderr_logfile=${ALLUXIO_HOME}/logs/alluxio-master.err
+stdout_logfile=${ALLUXIO_HOME}/logs/alluxio-master.out
 EOF
 
   else
@@ -238,12 +240,12 @@ EOF
     # add supervisor conf for worker
     cat > /etc/supervisor/conf.d/alluxio-worker.conf << EOF
 [program:alluxio-worker]
-command=/usr/bin/java -Xmx4g -XX:MaxDirectMemorySize=4g -cp /opt/alluxio-2.8.0/conf/::/opt/alluxio-2.8.0/assembly/alluxio-server-2.8.0.jar -Dalluxio.logger.type=WORKER_LOGGER -Dalluxio.home=/opt/alluxio-2.8.0 -Dalluxio.conf.dir=/opt/alluxio-2.8.0/conf -Dalluxio.logs.dir=/opt/alluxio-2.8.0/logs -Dalluxio.user.logs.dir=/opt/alluxio-2.8.0/logs/user -Dlog4j.configuration=file:/opt/alluxio-2.8.0/conf/log4j.properties -Dorg.apache.jasper.compiler.disablejsr199=true -Djava.net.preferIPv4Stack=true -Dorg.apache.ratis.thirdparty.io.netty.allocator.useCacheForAllThreads=false alluxio.worker.AlluxioWorker
+command=/usr/bin/java -Xmx${ALLUXIO_WORKER_HEAP} -XX:MaxDirectMemorySize=${ALLUXIO_WORKER_DIRECT_HEAP} -cp ${ALLUXIO_HOME}/conf/::${ALLUXIO_HOME}/assembly/alluxio-server-2.8.0.jar -Dalluxio.logger.type=WORKER_LOGGER -Dalluxio.home=${ALLUXIO_HOME} -Dalluxio.conf.dir=${ALLUXIO_HOME}/conf -Dalluxio.logs.dir=${ALLUXIO_HOME}/logs -Dalluxio.user.logs.dir=${ALLUXIO_HOME}/logs/user -Dlog4j.configuration=file:${ALLUXIO_HOME}/conf/log4j.properties -Dorg.apache.jasper.compiler.disablejsr199=true -Djava.net.preferIPv4Stack=true -Dorg.apache.ratis.thirdparty.io.netty.allocator.useCacheForAllThreads=false alluxio.worker.AlluxioWorker
 user=ubuntu
-autostart=true
-autorestart=true
-stderr_logfile=/opt/alluxio-2.8.0/logs/alluxio-worker.err
-stdout_logfile=/opt/alluxio-2.8.0/logs/alluxio-worker.out
+autostart=true ;auto start this program when supervisord starting
+autorestart=true ;supervisord auto starts this program if program crashes
+stderr_logfile=${ALLUXIO_HOME}/logs/alluxio-worker.err
+stdout_logfile=${ALLUXIO_HOME}/logs/alluxio-worker.out
 EOF
 
   fi
