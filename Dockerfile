@@ -30,8 +30,6 @@ ARG CUDA_PKG_VERSION=11-5
 #############
 # Install all needed libs
 #############
-ARG REQUIREMENTS=requirements_10.4ML.txt
-COPY ${REQUIREMENTS} /tmp/requirements.txt
 
 RUN set -ex && \ 
     cd /etc/apt/sources.list.d && \
@@ -52,14 +50,17 @@ RUN set -ex && \
                cuda-nvcc-${CUDA_PKG_VERSION} cuda-thrust-${CUDA_PKG_VERSION} cuda-toolkit-${CUDA_PKG_VERSION}-config-common cuda-toolkit-11-config-common \
                cuda-toolkit-config-common python3.8-dev libpq-dev libcairo2-dev build-essential unattended-upgrades cmake ccache \
                openmpi-bin linux-headers-5.4.0-117 linux-headers-5.4.0-117-generic linux-headers-generic libopenmpi-dev unixodbc-dev \
-               sysstat ssh tmux supervisor && \
+               sysstat ssh tmux && \
     apt-get install -y less vim && \
     /var/lib/dpkg/info/ca-certificates-java.postinst configure && \
     # Initialize the default environment that Spark and notebooks will use
-    virtualenv -p python3.8 --system-site-packages /databricks/python3 \
+    virtualenv -p python3.8 --system-site-packages /databricks/python3 --no-download --no-setuptools \
         && /databricks/python3/bin/pip install --no-cache-dir --upgrade pip \
-        && /databricks/python3/bin/pip install --no-cache-dir -r /tmp/requirements.txt \
-        # Install Python libraries for Databricks environment
+        && /databricks/python3/bin/pip install \
+            databricks-cli \
+            ipython \
+        && /databricks/python3/bin/pip install --force-reinstall \
+            virtualenv \
         && /databricks/python3/bin/pip cache purge && \
     apt-get -y purge --autoremove software-properties-common cuda-cudart-dev-${CUDA_PKG_VERSION} cuda-cupti-dev-${CUDA_PKG_VERSION} \
                cuda-driver-dev-${CUDA_PKG_VERSION} cuda-nvcc-${CUDA_PKG_VERSION} cuda-thrust-${CUDA_PKG_VERSION} \

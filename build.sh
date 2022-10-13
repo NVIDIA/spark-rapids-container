@@ -32,7 +32,6 @@ JAR_URL=${JAR_URL:-"${BASE_JAR_URL}/${VERSION}/${JAR_FILE}"}
 
 DRIVER_CONF_FILE=${DRIVER_CONF_FILE:-"00-custom-spark-driver-defaults.conf"}
 DATABRICKS_RUNTIME_VERSION=${DATABRICKS_RUNTIME_VERSION:-"10.4"}
-REQUIREMENTS="requirements_${DATABRICKS_RUNTIME_VERSION}ML.txt"
 
 STAGE=${STAGE:-"with-alluxio"}
 
@@ -41,7 +40,6 @@ docker build \
   --build-arg CUDA_PKG_VERSION=${CUDA_PKG_VERSION} \
   --build-arg JAR_URL=${JAR_URL} \
   --build-arg JAR_FILE=${JAR_FILE} \
-  --build-arg REQUIREMENTS=${REQUIREMENTS} \
   --build-arg DRIVER_CONF_FILE=${DRIVER_CONF_FILE} \
   --target $STAGE \
   -f ${DOCKERFILE} \
