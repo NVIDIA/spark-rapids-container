@@ -23,7 +23,7 @@
 # https://github.com/dayananddevarapalli/containers/blob/main/webterminal/Dockerfile
 #############
 ARG CUDA_VERSION=11.5.2
-FROM nvidia/cuda:${CUDA_VERSION}-cudnn8-runtime-ubuntu20.04 as base
+FROM nvidia/cuda:${CUDA_VERSION}-runtime-ubuntu20.04 as base
 
 ARG CUDA_PKG_VERSION=11-5
 
