@@ -37,32 +37,39 @@ cluster meets the prerequisites above by configuring it as follows:
 
 2. Ensure `Use Photon Acceleration` is disabled.
 
-3. Ensure `Enable autoscaling` is disabled.
+Note that GPU nodes are not available to be selected at this time for the driver or the workers. Therefore, you will first configure the use of the Docker container before configuring the driver and worker nodes.
 
-Note that GPU nodes are not available to be selected at this time for the driver or the workers. Therefore, you must first configure the use of the Docker container before configuring the driver and worker nodes.
+3. Under the `Advanced options`, select the `Docker` tab.
 
-4. Under the `Advanced options`, select the `Docker` tab.
+![Select-Docker-Tab](img/select-docker-tab.png)
 
-5. Select `Use your own Docker container`.
+4. Select `Use your own Docker container`.
 
-6. In the `Docker Image URL` field, enter the image location you pushed to using the build steps.
+5. In the `Docker Image URL` field, enter the image location you pushed to using the build steps.
 
-7. Set `Authentication` set to `Default` if using a public repository, or configure `Authentication` for the repository you have pushed the image to.
+6. Set `Authentication` set to `Default` if using a public repository, or configure `Authentication` for the repository you have pushed the image to.
 
 Now you can configure the driver and worker nodes in the main part of the UI.
 
-8. Choose the number of workers that matches the number of GPUs you want to use.
+7. Choose the number of workers that matches the number of GPUs you want to use.
 
-9. Select a worker type.  On AWS, use nodes with 1 GPU each such as `p3.2xlarge` or `g4dn.xlarge`.
+8. Select a worker type.  On AWS, use nodes with 1 GPU each such as `p3.2xlarge` or `g4dn.xlarge`.
    p2 nodes do not meet the architecture requirements (Pascal or higher) for the Spark worker
    (although they can be used for the driver node).  For Azure, choose GPU nodes such as
    Standard_NC6s_v3.  For GCP, choose N1 or A2 instance types with GPUs. 
 
-10. Select a driver type. Generally, this can be set the same as the worker, but you can select a node that 
+![Configure-Worker-Instance-Type](img/configure-worker-instance.png)
+
+
+9. Select a driver type. Generally, this can be set the same as the worker, but you can select a node that 
    does NOT include a GPU if you don't plan to do any GPU-related operations on the driver. On AWS, this 
    can be an `i3.xlarge` or larger.
 
-11. Now select the `Init Scripts` tab.
+![Configure-Driver-Instance-Type](img/configure-driver-instance.png)
+
+10. Ensure `Enable autoscaling` is disabled.
+
+11. Now under `Advanced options`, select the `Init Scripts` tab.
 
 12. In the `Destination` field, select `FILE`.
 
@@ -93,6 +100,8 @@ spark.rapids.sql.multiThreadedRead.numThreads 40
 ```
 
 4. In the `Environment variables` field, add the line `ENABLE_ALLUXIO=1`.
+
+![Environment-Variables-View](img/environment-variables.png)
 
 5. Customize Alluxio configuration using the following configs if needed. These should be added in the `Environment variables` field if you wish to change them.
 
