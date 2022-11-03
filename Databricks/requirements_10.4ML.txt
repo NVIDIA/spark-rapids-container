@@ -145,7 +145,7 @@ pmdarima==1.8.4
 preshed==3.0.5
 prompt-toolkit==3.0.17
 prophet==1.0.1
-protobuf==3.17.2
+protobuf==3.18.3
 psutil==5.8.0
 psycopg2==2.8.5
 ptyprocess==0.7.0
