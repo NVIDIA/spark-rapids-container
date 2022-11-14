@@ -57,16 +57,8 @@ RUN set -ex && \
 
 # Add necessary jars to support AWS s3 storage access
 RUN set -ex && \
-    # wget -O hadoop-KEYS https://downloads.apache.org/hadoop/common/KEYS && \
-    # gpg --import hadoop-KEYS && \
-    # wget https://repo1.maven.org/maven2/org/apache/hadoop/hadoop-aws/3.3.1/hadoop-aws-3.3.1.jar.asc && \
     wget https://repo1.maven.org/maven2/org/apache/hadoop/hadoop-aws/3.3.1/hadoop-aws-3.3.1.jar && \
-    # gpg --verify hadoop-aws-3.3.1.jar.asc hadoop-aws-3.3.1.jar && \
-    # wget https://repo1.maven.org/maven2/com/amazonaws/aws-java-sdk-bundle/1.11.655/aws-java-sdk-bundle-1.11.655.jar.asc && \
     wget https://repo1.maven.org/maven2/com/amazonaws/aws-java-sdk-bundle/1.11.655/aws-java-sdk-bundle-1.11.655.jar
-    # gpg --verify aws-java-sdk-bundle-1.11.655.jar.asc aws-java-sdk-bundle-1.11.655.jar
-    # chmod 644 /opt/spark/jars/hadoop-aws-3.3.1.jar && \
-    # chmod 644 /opt/spark/jars/aws-java-sdk-bundle-1.11.655.jar
 
 # TODO: Investigate running both pip and pip3 via virtualenvs
 RUN apt-get update && \
