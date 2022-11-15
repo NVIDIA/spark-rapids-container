@@ -171,9 +171,15 @@ Then you can see your cluster in the AWS console:
    ```bash
    kubeclt delete pod example-driver
    ```
-
+5. Delete the cluster along with its node groups
+   ```bash
+   # delete node group first as it is not allowed to delete the cluster if there are still node groups
+   eksctl delete nodegroup --cluster <cluster name> --region <region> --name <node group name>
+   # then it's safe to delete the cluster
+   eksctl delete cluster --name <cluster name>
+   ```
 ### Access Spark UI
-Before deleting the pod, you can access the Spark UI by port-forwarding the driver pod:
+Before the Spark application is finished, you can access the Spark UI by port-forwarding the driver pod:
 ```bash
 $ kubectl port-forward example-driver 4040:4040
 Forwarding from 127.0.0.1:4040 -> 4040
