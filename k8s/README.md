@@ -61,7 +61,7 @@ eksctl create cluster \
 --managed \
 --nodegroup-name gpu-node-group \
 --node-type g4dn.xlarge \
---nodes 2
+--nodes 2 \
 --nodes-min 0 \
 --nodes-max 4 \
 --vpc-public-subnets <subnets-with-comma-separated>
