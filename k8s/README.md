@@ -26,14 +26,14 @@ docker push <repo>:<tag>
 
 ## Usage
 
-### AWS EKS
+## AWS EKS
 Prerequisites: 
 1. [Installing kubectl](https://docs.aws.amazon.com/eks/latest/userguide/install-kubectl.html)
 2. [Installing eksctl](https://docs.aws.amazon.com/eks/latest/userguide/eksctl.html)
 3. Basic understanding of [AWS EKS](https://docs.aws.amazon.com/eks/latest/userguide/what-is-eks.html)
    and its permission system [AWS IAM](https://docs.aws.amazon.com/IAM/latest/UserGuide/introduction.html)
 
-#### Create an EKS cluster with a GPU node group
+## Create an EKS cluster with a GPU node group
 Before executing the following command, please make sure you have configured your AWS CLI properly.
 Please make sure you have configured your local AWS identity(user) the same as the one you are using
 to browse the AWS console.
@@ -78,7 +78,7 @@ eksctl create cluster \
 Then you can see your cluster in the AWS console:
 ![cluster](./img/cluster-info.jpg "cluster")
 
-#### Submit Spark applications to the EKS cluster
+### Submit Spark applications to the EKS cluster
 1. get cluster master IP address
    ```bash
    $ kubectl cluster-info
@@ -184,7 +184,7 @@ Then you can see your cluster in the AWS console:
    kubeclt delete pod example-driver
    ```
 
-#### Access Spark UI
+### Access Spark UI
 Before deleting the pod, you can access the Spark UI by port-forwarding the driver pod:
 ```bash
 $ kubectl port-forward example-driver 4040:4040
@@ -196,4 +196,4 @@ Then you can access the Spark UI at http://localhost:4040.
 
 ![port-forward](./img/port-forward.png "port-forward")
 
-### GCP GKE(TODO)
+## GCP GKE(TODO)
