@@ -31,7 +31,7 @@ Prerequisites:
 1. [Installing kubectl](https://docs.aws.amazon.com/eks/latest/userguide/install-kubectl.html)
 2. [Installing eksctl](https://docs.aws.amazon.com/eks/latest/userguide/eksctl.html)
 3. Basic understanding of [AWS EKS](https://docs.aws.amazon.com/eks/latest/userguide/what-is-eks.html)
-   and its permission system[AWS IAM](https://docs.aws.amazon.com/IAM/latest/UserGuide/introduction.html)
+   and its permission system [AWS IAM](https://docs.aws.amazon.com/IAM/latest/UserGuide/introduction.html)
 
 #### Create an EKS cluster with a GPU node group
 Before executing the following command, please make sure you have configured your AWS CLI properly.
@@ -97,7 +97,9 @@ Then you can see your cluster in the AWS console:
 
 3. submit Spark applications
 
-   This Spark application will read data from s3 then show in the console.
+   This Spark application will read data from a public s3 bucket then show them in the console.
+   There is a short sleep period(300 seconds) in the application to simulate a long running Spark application.
+   User can get access to the Spark UI during this period.
    User needs to set IMAGE_NAME, K8SMASTER and their aws access key and secret key accordingly in the command.
    
    ```bash
@@ -181,4 +183,17 @@ Then you can see your cluster in the AWS console:
    ```bash
    kubeclt delete pod example-driver
    ```
+
+#### Access Spark UI
+Before deleting the pod, you can access the Spark UI by port-forwarding the driver pod:
+```bash
+$ kubectl port-forward example-driver 4040:4040
+Forwarding from 127.0.0.1:4040 -> 4040
+Forwarding from [::1]:4040 -> 4040
+...
+```
+Then you can access the Spark UI at http://localhost:4040.
+
+![port-forward](./img/port-forward.png "port-forward")
+
 ### GCP GKE(TODO)
