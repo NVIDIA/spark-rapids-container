@@ -84,7 +84,7 @@ Then you can see your cluster in the AWS console:
    # service account named spark
    kubectl create serviceaccount spark
    # cluster role binding for the service account
-   kubectl create clusterrolebinding spark-role --clusterrole=edit --serviceaccount=default:spark    --namespace=default
+   kubectl create clusterrolebinding spark-role --clusterrole=edit --serviceaccount=default:spark --namespace=default
    ```
 
 3. submit Spark applications
