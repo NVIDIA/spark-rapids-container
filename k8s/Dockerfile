@@ -15,7 +15,9 @@
 #
 
 # A Dockerfile for building a container dedicated to run inside k8s cluster.
-FROM nvidia/cuda:11.5.0-devel-ubuntu18.04
+ARG CUDA_VER=11.5.0
+ARG UBUNTU_VER=18.04
+FROM nvidia/cuda:${CUDA_VER}-devel-ubuntu${UBUNTU_VER}
 
 # All build args with default values
 ARG spark_uid=185

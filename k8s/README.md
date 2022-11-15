@@ -45,18 +45,10 @@ To check the identity:
 Make sure the output of the two commands are the same. Otherwise, you will not be able to see your 
 cluster information in the AWS console.
 
-A recommanded way to manage your EKS cluster is to create a dedicated user in your AWS account:
-1. Go to [IAM-Users](https://us-east-1.console.aws.amazon.com/iamv2/home?region=us-west-2#/users), choose **Add Users**
-![add users](./img/add-user.jpg "add users")
-2. Type in **User name**, check both **Access key - Programmatic access** and **Password - AWS Management Console access**, the rest choices are on you.
-![set access](./img/set-access.png "set permissions")
-3. Set permissions for your user, you can attach **AdministratorAccess** if you want full control on your EKS cluster.
-![set permissions](./img/set-permission.jpg "set permissions")
-4. Download the **credential CSV** file and save it in a safe place. Then click the **console sign-in link**.
-![download credential](./img/download-credentials.png "download credential")
-5. login with the password you set by yourself or auto generated but saved in your CSV credential file.
-6. Go to you command line tool and type `aws configure`, set **AWS ACCESS KEY ID** and **ACCESS KEY** that are contained in your credential CSV file.
-7. Now you can create an EKS cluster by command line and also see cluster information in your AWS Console Page!
+A recommanded way to manage your EKS cluster is to create a dedicated user in your AWS account, For
+more information please refer to [AWS IAM](https://docs.aws.amazon.com/IAM/latest/UserGuide/introduction.html).
+
+```bash
 
 To create an EKS cluster with a GPU node group:
 ```bash
@@ -72,7 +64,7 @@ eksctl create cluster \
 --nodes 2
 --nodes-min 0 \
 --nodes-max 4 \
---vpc-public-subnets <subnets-with-comman-seprated>
+--vpc-public-subnets <subnets-with-comma-separated>
 ```
 
 Then you can see your cluster in the AWS console:
@@ -82,8 +74,8 @@ Then you can see your cluster in the AWS console:
 1. get cluster master IP address
    ```bash
    $ kubectl cluster-info
-   Kubernetes control plane is running at https://8440EE5F8730EDD7D8B989F704DE1DFE.gr7.us-west-2.eks.   amazonaws.com
-   CoreDNS is running at https://8440EE5F8730EDD7D8B989F704DE1DFE.gr7.us-west-2.eks.amazonaws.com/api/v1/   namespaces/kube-system/services/kube-dns:dns/proxy
+   Kubernetes control plane is running at https://8440EE5F8730EDD7D8B989F704DE1DFE.gr7.us-west-2.eks.amazonaws.com
+   CoreDNS is running at https://8440EE5F8730EDD7D8B989F704DE1DFE.gr7.us-west-2.eks.amazonaws.com/api/v1/namespaces/kube-system/services/kube-dns:dns/proxy
    ```
    The master IP address is `https://8440EE5F8730EDD7D8B989F704DE1DFE.gr7.us-west-2.eks.amazonaws.com`, it    will be the k8s master address when submitting Spark applications.
 
@@ -117,31 +109,27 @@ Then you can see your cluster in the AWS console:
         --master $K8SMASTER \
         --deploy-mode cluster  \
         --name example-app \
-        --conf spark.executor.instances=1 \
-        --conf spark.kubernetes.authenticate.driver.serviceAccountName=spark \
-        --conf spark.executor.resource.gpu.amount=1 \
-        --conf spark.executor.memory=4G \
-        --conf spark.executor.cores=1 \
-        --conf spark.task.cpus=1 \
+        --driver-memory 2G \
         --conf spark.eventLog.enabled=false \
-        --conf spark.task.resource.gpu.amount=1 \
-        --conf spark.rapids.memory.pinnedPool.size=2G \
-        --conf spark.executor.memoryOverhead=3G \
-        --conf spark.sql.files.maxPartitionBytes=512m \
-        --conf spark.sql.shuffle.partitions=10 \
-        --conf spark.plugins=com.nvidia.spark.SQLPlugin \
-        --conf spark.kubernetes.namespace=$SPARK_NAMESPACE  \
-        --conf spark.kubernetes.driver.pod.name=$SPARK_DRIVER_NAME  \
+        --conf spark.executor.cores=1 \
+        --conf spark.executor.instances=1 \
+        --conf spark.executor.memory=4G \
+        --conf spark.executor.resource.gpu.amount=1 \
         --conf spark.executor.resource.gpu.discoveryScript=/opt/spark/examples/src/main/scripts/getGpusResources.sh \
         --conf spark.executor.resource.gpu.vendor=nvidia.com \
-        --conf spark.kubernetes.container.image=$IMAGE_NAME \
-        --conf spark.kubernetes.container.image.pullPolicy=Always \
-        --conf spark.kubernetes.file.upload.path=s3a://<s3 bucket to staging your jar or python script> \
         --conf spark.hadoop.fs.s3a.access.key=<your aws access key> \
         --conf spark.hadoop.fs.s3a.secret.key=<your aws secret key> \
-        --conf spark.hadoop.fs.s3a.impl=org.apache.hadoop.fs.s3a.S3AFileSystem \
         --conf spark.hadoop.fs.s3a.fast.upload=true \
-        --driver-memory 2G \
+        --conf spark.hadoop.fs.s3a.impl=org.apache.hadoop.fs.s3a.S3AFileSystem \
+        --conf spark.kubernetes.authenticate.driver.serviceAccountName=spark \
+        --conf spark.kubernetes.container.image.pullPolicy=Always \
+        --conf spark.kubernetes.container.image=$IMAGE_NAME \
+        --conf spark.kubernetes.driver.pod.name=$SPARK_DRIVER_NAME \
+        --conf spark.kubernetes.file.upload.path=s3a://<s3 bucket to staging your jar or python script> \
+        --conf spark.kubernetes.namespace=$SPARK_NAMESPACE \
+        --conf spark.plugins=com.nvidia.spark.SQLPlugin \
+        --conf spark.rapids.memory.pinnedPool.size=2G \
+        --conf spark.task.resource.gpu.amount=1 \
         file:///$PWD/read-s3-test.py
    ```
 
@@ -195,5 +183,3 @@ Forwarding from [::1]:4040 -> 4040
 Then you can access the Spark UI at http://localhost:4040.
 
 ![port-forward](./img/port-forward.png "port-forward")
-
-## GCP GKE(TODO)
