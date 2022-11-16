@@ -40,7 +40,7 @@ helm repo add stable https://charts.helm.sh/stable
 ```
 
 ## Config SHS yaml file
-User should minimally configure the SHS yaml file by modifying the following parameters:
+User should minimally configure the [SHS yaml file](./shs_s3.yaml) by modifying the following parameters:
 1. `s3.logDirectory`: the S3 bucket path where the Spark application logs are stored
 2. `image.repository` & `image.tag`: the Docker image repository and tag
 More configurable parameters can be found in [SHS Chart Configurations](https://github.com/helm/charts/tree/master/stable/spark-history-server#configurations)
@@ -64,3 +64,11 @@ The EXTERNAL-IP is the public IP address of the SHS service.
 ## Access SHS UI
 Open the `EXTERNAL-IP:18080` in a browser, you should be able to see the SHS UI.
 ![SHS](../img/shs.png "Spark History Server")
+
+## Stop the SHS service
+
+Instead of delete the pod by `kubectl`, user should use helm to un-deploy the SHS service:
+
+```bash
+helm uninstall spark-history-server-1668577003
+```

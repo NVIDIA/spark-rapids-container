@@ -124,11 +124,12 @@ Then you can see your cluster in the AWS console:
         --conf spark.kubernetes.authenticate.driver.serviceAccountName=spark \
         --conf spark.kubernetes.container.image=$IMAGE_NAME \
         --conf spark.kubernetes.driver.pod.name=$SPARK_DRIVER_NAME \
+        --conf spark.kubernetes.file.upload.path=s3a://<s3 bucket to staging your jar or python script> \
         --conf spark.kubernetes.namespace=$SPARK_NAMESPACE \
         --conf spark.plugins=com.nvidia.spark.SQLPlugin \
         --conf spark.rapids.memory.pinnedPool.size=2G \
         --conf spark.task.resource.gpu.amount=1 \
-        local:///opt/spark/work-dir/read-s3-test.py
+        file:///$PWD/read-s3-test.py
    ```
 
    After execution, check the logs of the driver pod:

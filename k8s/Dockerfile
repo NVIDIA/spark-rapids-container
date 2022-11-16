@@ -91,9 +91,6 @@ RUN rm /bin/sh && \
     echo "auth required pam_wheel.so use_uid" >> /etc/pam.d/su && \
     chgrp root /etc/passwd && chmod ug+rw /etc/passwd
 
-# Add our example python script to the image
-COPY read-s3-test.py /opt/spark/work-dir/read-s3-test.py
-
 ENTRYPOINT [ "/opt/spark/kubernetes/dockerfiles/spark/entrypoint.sh" ]
 
 # Specify the User that the actual main process will run as
