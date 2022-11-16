@@ -34,4 +34,4 @@ jobs:
         with:
           push: false
           context: ./Databricks
-          tags: pre-merge-{{ github.SHA }}
+          tags: pre-merge-${{ github.sha }}
