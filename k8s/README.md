@@ -187,3 +187,6 @@ Forwarding from [::1]:4040 -> 4040
 Then you can access the Spark UI at http://localhost:4040.
 
 ![port-forward](./img/port-forward.png "port-forward")
+
+### Access Spark History Server
+Please refer to [README](./spark-history-server/README.md) for more details.
