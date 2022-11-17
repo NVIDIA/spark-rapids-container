@@ -110,7 +110,8 @@ Then you can see your cluster in the AWS console:
         --deploy-mode cluster  \
         --name example-app \
         --driver-memory 2G \
-        --conf spark.eventLog.enabled=false \
+        --conf spark.eventLog.enabled=true \
+        --conf spark.eventLog.dir=s3a://<s3 bucket to save the logs> \
         --conf spark.executor.cores=1 \
         --conf spark.executor.instances=1 \
         --conf spark.executor.memory=4G \
