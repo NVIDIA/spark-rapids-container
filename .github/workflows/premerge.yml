@@ -12,26 +12,25 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-name: pre-merge
+name: container-build-check
 
 on:
-  # quick tests for pull requests and the releasing branches
-  push:
-    branches:
-      - dev
   pull_request:
+    types: [opened, synchronize, reopened]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
 
 jobs:
   docker:
     runs-on: ubuntu-20.04
     steps:
-      -
-        name: Checkout
+      - name: Checkout
         uses: actions/checkout@v3
-      -
-        name: Build
+      - name: Build docker image
         uses: docker/build-push-action@v3
         with:
           push: false
           context: ./Databricks
-          tags: pre-merge-${{ github.sha }}
+          tags: ci-test-${{ github.sha }}
