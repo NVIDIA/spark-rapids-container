@@ -132,6 +132,13 @@ Then you can see your cluster in the AWS console:
         file:///$PWD/read-s3-test.py
    ```
 
+   Note: to save the Spark application logs for further analysis, please set 
+   `spark.eventLog.enabled=true` and `spark.eventLog.dir=s3a://<s3 bucket to save the logs>`
+   It's not recommended to save your logs to a local path in a k8s environment as the logs will be lost
+   when the pod is deleted if extra volume related configurations are not set. For more information,
+   please refer to [volumes](https://kubernetes.io/docs/concepts/storage/volumes/) and
+   [using-kubernetes-volumes](https://spark.apache.org/docs/latest/running-on-kubernetes.html#using-kubernetes-volumes).
+
    After execution, check the logs of the driver pod:
    ```bash
    $ kubectl logs example-driver
