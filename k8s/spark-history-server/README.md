@@ -26,7 +26,12 @@ Then push to your Docker registry:
 docker push <repo>:<tag>
 ```
 
-## Prepare your AWS credentials
+## Add Helm repository
+```bash
+helm repo add stable https://charts.helm.sh/stable
+```
+## AWS
+### Prepare your AWS credentials
 1. save your AWS ACCESS KEY to file `aws-access-key`
 2. save your AWS SECRET KEY to file `aws-secret-key`
 3. generate `aws-secrets` for k8s by running the following command:
@@ -34,18 +39,29 @@ docker push <repo>:<tag>
 kubectl create secret generic aws-secrets --from-file=aws-access-key --from-file=aws-secret-key
 ```
 
-## Add Helm repository
-```bash
-helm repo add stable https://charts.helm.sh/stable
-```
 
-## Config SHS yaml file
+### Config SHS yaml file
 User should minimally configure the [SHS yaml file](./shs_s3.yaml) by modifying the following parameters:
 1. `s3.logDirectory`: the S3 bucket path where the Spark application logs are stored
 2. `image.repository` & `image.tag`: the Docker image repository and tag
 More configurable parameters can be found in [SHS Chart Configurations](https://github.com/helm/charts/tree/master/stable/spark-history-server#configurations)
 
+
+## GKE
+### Prepare your GKE credentials
+1. [generate your credential key JSON file for your serviceaccount](https://cloud.google.com/iam/docs/creating-managing-service-account-keys#iam-service-account-keys-create-gcloud), save to your local machine, name it `key.json`
+2. generate `history-secrets` for k8s by running the following command:
+```bash
+kubectl -n default create secret generic history-secrets --from-file=key.json
+```
+
+### Config SHS yaml file
+User should minimally configure the [SHS yaml file](./shs_gcs.yaml) by modifying the following parameters:
+1. `gcs.logDirectory`: the GCS bucket path where the Spark application logs are stored
+2. `image.repository` & `image.tag`: the Docker image repository and tag
 ## Install Helm SHS Chart
+
+choose the `SHS yaml file for S3` or `SHS yaml file for GCS` based on your cloud provider. The following command use the `SHS yaml file for S3` as an example.
 
 ```bash
 helm install stable/spark-history-server --namespace default -f shs_s3.yaml --generate-name

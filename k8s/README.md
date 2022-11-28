@@ -27,13 +27,13 @@ docker push <repo>:<tag>
 ## Usage
 
 ## AWS EKS
-Prerequisites: 
+### Prerequisites: 
 1. [Installing kubectl](https://docs.aws.amazon.com/eks/latest/userguide/install-kubectl.html)
 2. [Installing eksctl](https://docs.aws.amazon.com/eks/latest/userguide/eksctl.html)
 3. Basic understanding of [AWS EKS](https://docs.aws.amazon.com/eks/latest/userguide/what-is-eks.html)
    and its permission system [AWS IAM](https://docs.aws.amazon.com/IAM/latest/UserGuide/introduction.html)
 
-## Create an EKS cluster with a GPU node group
+### Create an EKS cluster with a GPU node group
 Before executing the following command, please make sure you have configured your AWS CLI properly.
 Please make sure you have configured your local AWS identity(user) the same as the one you are using
 to browse the AWS console.
@@ -47,8 +47,6 @@ cluster information in the AWS console.
 
 A recommanded way to manage your EKS cluster is to create a dedicated user in your AWS account, For
 more information please refer to [AWS IAM](https://docs.aws.amazon.com/IAM/latest/UserGuide/introduction.html).
-
-```bash
 
 To create an EKS cluster with a GPU node group:
 ```bash
@@ -77,7 +75,7 @@ Then you can see your cluster in the AWS console:
    Kubernetes control plane is running at https://8440EE5F8730EDD7D8B989F704DE1DFE.gr7.us-west-2.eks.amazonaws.com
    CoreDNS is running at https://8440EE5F8730EDD7D8B989F704DE1DFE.gr7.us-west-2.eks.amazonaws.com/api/v1/namespaces/kube-system/services/kube-dns:dns/proxy
    ```
-   The master IP address is `https://8440EE5F8730EDD7D8B989F704DE1DFE.gr7.us-west-2.eks.amazonaws.com`, it    will be the k8s master address when submitting Spark applications.
+   The master IP address is `https://8440EE5F8730EDD7D8B989F704DE1DFE.gr7.us-west-2.eks.amazonaws.com`, it will be the k8s master address when submitting Spark applications.
 
 2. create ServiceAccount and ClusterRoleBinding for the Spark application
    ```bash
@@ -185,7 +183,77 @@ Then you can see your cluster in the AWS console:
    # then it's safe to delete the cluster
    eksctl delete cluster --name <cluster name>
    ```
-### Access Spark UI
+## GCS GKE
+### Prerequisites:
+1. [Installing kubectl](https://docs.aws.amazon.com/eks/latest/userguide/install-kubectl.html)
+2. [Installing gcloud cli](https://cloud.google.com/sdk/docs/install#linux)
+3. Basic understanding of [GCS GKE](https://cloud.google.com/kubernetes-engine)
+   and its permission system [GCS IAM](https://cloud.google.com/iam/docs/overview)
+
+### Create an GKE cluster with a GPU node group
+Before creating an GKE cluster, make sure you [initialized gcloud cli](https://cloud.google.com/sdk/docs/initializing) and set the project and zone correctly.
+
+User can modify the cluster configurations accordingly.
+
+```bash
+gcloud beta container \
+--project <your project id> \
+clusters create \
+<cluster name> \
+--zone "us-central1-c" \
+--no-enable-basic-auth \
+--cluster-version "1.23.12-gke.100" \
+--release-channel "regular" \
+--machine-type "n1-standard-16" \
+--accelerator "type=nvidia-tesla-t4,count=1" \
+--image-type "COS_CONTAINERD" \
+--disk-type "pd-ssd" --disk-size "300" \
+--local-ssd-count "1" \
+--metadata disable-legacy-endpoints=true \
+--service-account <your service account id> \
+--max-pods-per-node "110" --num-nodes "1" \
+--logging=SYSTEM,WORKLOAD \
+--monitoring=SYSTEM \
+--enable-ip-alias \
+--network "projects/rapids-spark/global/networks/default" \
+--subnetwork "projects/rapids-spark/regions/us-central1/subnetworks/default" \
+--no-enable-intra-node-visibility \
+--default-max-pods-per-node "110" \
+--no-enable-master-authorized-networks \
+--addons HorizontalPodAutoscaling,HttpLoadBalancing,GcePersistentDiskCsiDriver \
+--enable-autoupgrade \
+--enable-autorepair \
+--max-surge-upgrade 1 \
+--max-unavailable-upgrade 0 \
+--enable-shielded-nodes \
+--node-locations "us-central1-c"
+```
+
+
+### Pull k8s config to local machine
+```bash
+gcloud container clusters get-credentials <cluster name> --zone us-central1-c --project <project id>
+```
+
+### Submit Spark applications to the GKE cluster
+
+Similar to [AWS EKS Spark submit](#submit-spark-applications-to-the-eks-cluster), user can submit Spark applications to the GKE cluster by using the `spark-submit` command.
+
+For GKE, user need to set some extra configurations to make sure the Spark driver and executor pods can access the GCS bucket:
+```bash
+--conf spark.eventLog.enabled=true \
+--conf spark.eventLog.dir=gs://<your gs bucket to save history logs> \
+--conf spark.hadoop.fs.gs.auth.service.account.email=<your gcs service account email> \
+--conf spark.hadoop.fs.gs.auth.service.account.private.key.id=<your gcs service account key id, saved in key.json>
+--conf spark.hadoop.fs.gs.auth.service.account.private.key=<your gcs service account secret key, saved in key.json>
+--conf spark.hadoop.fs.gs.impl=com.google.cloud.hadoop.fs.gcs.GoogleHadoopFileSystem \
+--conf spark.hadoop.fs.gs.project.id=<your project id> \
+--conf spark.kubernetes.file.upload.path=gs://<yoru gs bucket path for file staging> \
+```
+User can modify [read-s3-test.py](./read-s3-test.py) directly with your own gs bucket path and your own query to test the Spark application.
+
+
+## Access Spark UI
 Before the Spark application is finished, you can access the Spark UI by port-forwarding the driver pod:
 ```bash
 $ kubectl port-forward example-driver 4040:4040
@@ -197,5 +265,9 @@ Then you can access the Spark UI at http://localhost:4040.
 
 ![port-forward](./img/port-forward.png "port-forward")
 
-### Access Spark History Server
+### Delete example app pod
+```bash
+kubectl delete pod example-driver
+```
+## Access Spark History Server
 Please refer to [README](./spark-history-server/README.md) for more details.

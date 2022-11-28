@@ -1,0 +1,17 @@
+#shs_gcs.yaml
+pvc:
+ enablePVC: false
+ existingClaimName: nfs-pvc
+ eventsDir: “/”
+nfs:
+ enableExampleNFS: false
+ pvName: nfs-pv
+ pvcName: nfs-pvc
+gcs:
+ enableGCS: true
+ secret: history-secrets
+ key: key.json
+ logDirectory: gs://<your gcs bucket path for Spark Event Logs>
+image:
+ repository: <repo>
+ tag: <tag>

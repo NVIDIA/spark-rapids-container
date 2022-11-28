@@ -17,7 +17,7 @@
 # A Dockerfile for building a container dedicated to run inside k8s cluster.
 ARG CUDA_VER=11.5.0
 ARG UBUNTU_VER=18.04
-FROM nvidia/cuda:${CUDA_VER}-devel-ubuntu${UBUNTU_VER}
+FROM nvidia/cuda:${CUDA_VER}-runtime-ubuntu${UBUNTU_VER}
 
 # All build args with default values
 ARG spark_uid=185
@@ -61,8 +61,10 @@ RUN set -ex && \
 RUN set -ex && \
     wget https://repo1.maven.org/maven2/org/apache/hadoop/hadoop-aws/3.3.1/hadoop-aws-3.3.1.jar && \
     wget https://repo1.maven.org/maven2/com/amazonaws/aws-java-sdk-bundle/1.11.655/aws-java-sdk-bundle-1.11.655.jar
-# TODO: maybe need GCS connector jar if using GCS storage
-# https://mvnrepository.com/artifact/com.google.cloud.bigdataoss/gcs-connector
+# Add necessary jars to support GCS storage access
+RUN set -ex && \
+    wget https://repo1.maven.org/maven2/com/google/cloud/bigdataoss/gcs-connector/hadoop3-2.2.2/gcs-connector-hadoop3-2.2.2-shaded.jar
+# TODO: Add necessary jars to support Azure storage access
 
 # TODO: Investigate running both pip and pip3 via virtualenvs
 RUN apt-get update && \
