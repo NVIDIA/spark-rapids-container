@@ -235,6 +235,11 @@ clusters create \
 gcloud container clusters get-credentials <cluster name> --zone us-central1-c --project <project id>
 ```
 
+### Install GPU driver
+```bash
+kubectl apply -f https://raw.githubusercontent.com/GoogleCloudPlatform/container-engine-accelerators/master/nvidia-driver-installer/cos/daemonset-preloaded-latest.yaml
+```
+
 ### Submit Spark applications to the GKE cluster
 
 Similar to [AWS EKS Spark submit](#submit-spark-applications-to-the-eks-cluster), user can submit Spark applications to the GKE cluster by using the `spark-submit` command.
