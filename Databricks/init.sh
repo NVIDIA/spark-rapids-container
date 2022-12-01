@@ -38,6 +38,12 @@ ALLUXIO_WORKER_DIRECT_HEAP=${ALLUXIO_WORKER_DIRECT_HEAP:-'4g'}
 # recommended location would be dbfs on Databricks, path has to be accessible via rsync
 ALLUXIO_COPY_LOG_PATH=${ALLUXIO_COPY_LOG_PATH:-''}
 
+# Prometheus
+readonly PROMETHEUS_VERSION=2.37.3
+readonly PROMETHEUS_HOME=/opt/prometheus-${PROMETHEUS_VERSION}.linux-amd64
+readonly PROMETHEUS_CFG_PATH=${PROMETHEUS_HOME}/prometheus.yml
+PROMETHEUS_COPY_DATA_PATH=${PROMETHEUS_COPY_DATA_PATH:-''}
+
 # Run a command as a specific user
 # Assumes the provided user already exists on the system and user running script has sudo access
 #
@@ -155,7 +161,7 @@ configure_nvme() {
   echo "${use_mem}"
 }
 
-# add crontab to rsync alluxio log to /dbfs/cluster-logs/alluxio
+# add crontab to rsync alluxio log to $ALLUXIO_COPY_LOG_PATH
 set_crontab_alluxio_log() {
   if [[ "$#" -ne "1" ]]; then
     echo "Incorrect"
@@ -166,6 +172,21 @@ set_crontab_alluxio_log() {
   # add crond to copy alluxio logs
   crontab -l > cron_bkp || true
   echo "* * * * * /usr/bin/rsync -a ${ALLUXIO_HOME}/logs $ALLUXIO_COPY_LOG_PATH/$folder >/dev/null 2>&1" >> cron_bkp
+  crontab cron_bkp
+  rm cron_bkp
+}
+
+# add crontab to rsync Prometheus data to ${PROMETHEUS_COPY_DATA_PATH}
+set_crontab_prometheus_data() {
+  if [[ "$#" -ne "1" ]]; then
+    echo "Incorrect"
+    exit 2
+  fi
+  local folder=$1
+  mkdir -p ${PROMETHEUS_COPY_DATA_PATH}/$folder
+  # add crond to copy Prometheus data
+  crontab -l > cron_bkp || true
+  echo "* * * * * /usr/bin/rsync -a ${PROMETHEUS_HOME}/data ${PROMETHEUS_COPY_DATA_PATH}/$folder >/dev/null 2>&1" >> cron_bkp
   crontab cron_bkp
   rm cron_bkp
 }
@@ -209,6 +230,11 @@ config_alluxio() {
     if [[ -n $ALLUXIO_COPY_LOG_PATH ]]; then
       set_crontab_alluxio_log "${DB_DRIVER_IP}-master"
     fi
+
+    if [[ -n $PROMETHEUS_COPY_DATA_PATH ]]; then
+      set_crontab_prometheus_data "${DB_DRIVER_IP}-master"
+    fi
+
     MASTER_HEAP_SETTING="-Xms${ALLUXIO_MASTER_HEAP} -Xmx${ALLUXIO_MASTER_HEAP}"
 
     # start master, alluxio-start.sh will do some initialization
@@ -228,6 +254,40 @@ autorestart=true ;supervisord auto starts this program if program crashes
 stderr_logfile=${ALLUXIO_HOME}/logs/alluxio-master.err
 stdout_logfile=${ALLUXIO_HOME}/logs/alluxio-master.out
 EOF
+
+    # Prometheus
+    if [[ -n ${PROMETHEUS_COPY_DATA_PATH} ]]; then
+      # config Prometheus
+      mkdir ${PROMETHEUS_HOME}/logs
+      chown -R ubuntu:ubuntu /opt/prometheus*
+
+      cat > ${PROMETHEUS_CFG_PATH} << EOF
+global:
+  scrape_interval: 15s # Set the scrape interval to every 15 seconds. Default is every 1 minute.
+scrape_configs:
+  - job_name: "alluxio master"
+    metrics_path: 'metrics/prometheus/'
+    static_configs:
+      - targets: ["localhost:19999"] # pull metrics from master
+EOF
+      # TODO, how to add targets to pull worker metrics data into Prometheus?
+      # In here do not know the worker IPs.
+      # targets: ["worker-ip:30000"]
+
+      # add supervisor conf for Prometheus
+      cat > /etc/supervisor/conf.d/prometheus.conf << EOF
+[program:prometheus]
+command=${PROMETHEUS_HOME}/prometheus --storage.tsdb.path=${PROMETHEUS_HOME}/data --config.file=${PROMETHEUS_HOME}/prometheus.yml
+user=ubuntu
+autostart=true ;auto start this program when supervisord starting
+autorestart=true ;supervisord auto starts this program if program crashes
+stderr_logfile=${PROMETHEUS_HOME}/logs/prometheus.err
+stdout_logfile=${PROMETHEUS_HOME}/logs/prometheus.out
+EOF
+
+      # enable Alluxio web service to expose the metrics data in Prometheus type. This is used by Prometheus to pull metrics data.
+      set_metrics_property sink.prometheus.class alluxio.metrics.sink.PrometheusMetricsServlet
+    fi
 
   else
     # On Workers
@@ -256,6 +316,6 @@ start_ssh
 if [[ "$ENABLE_ALLUXIO" = "1" ]]; then
   config_alluxio
   # start supervisord, and supervisord starts alluxio
-  # supervisord will restart alluxio if alluxio crashes
+  # supervisord will restart programs Alluxio, Prometheus, etc. if they crash
   /usr/bin/supervisord -c /etc/supervisor/supervisord.conf
 fi

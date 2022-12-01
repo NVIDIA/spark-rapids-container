@@ -222,6 +222,16 @@ RUN wget -O /tmp/$ALLUXIO_TAR_FILE ${ALLUXIO_DOWNLOAD_URL} \
     && cp ${ALLUXIO_HOME}/client/alluxio-${ALLUXIO_VERSION}-client.jar /databricks/jars/
 
 #############
+# Setup Prometheus
+#############
+ARG PROMETHEUS_VERSION=2.37.3
+ARG PROMETHEUS_TAR_FILE=prometheus-${PROMETHEUS_VERSION}.linux-amd64.tar.gz
+ARG PROMETHEUS_DOWNLOAD_URL=https://github.com/prometheus/prometheus/releases/download/v${PROMETHEUS_VERSION}/${PROMETHEUS_TAR_FILE}
+RUN wget -O /tmp/${PROMETHEUS_TAR_FILE} ${PROMETHEUS_DOWNLOAD_URL} \
+    && tar zxf /tmp/${PROMETHEUS_TAR_FILE} -C /opt/ \
+    && rm -f /tmp/${PROMETHEUS_TAR_FILE}
+
+#############
 # Allow ubuntu user to sudo without password
 #############
 RUN echo "ubuntu ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/ubuntu \
