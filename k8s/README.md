@@ -98,7 +98,7 @@ Then you can see your cluster in the AWS console:
    # set your docker image path
    export IMAGE_NAME=<repo>:<tag>
    # set k8s master address
-   export K8SMASTER=k8s://8440EE5F8730EDD7D8B989F704DE1DFE.gr7.us-west-2.eks.amazonaws.com:443
+   export K8SMASTER=k8s://https://8440EE5F8730EDD7D8B989F704DE1DFE.gr7.us-west-2.eks.amazonaws.com:443
    # use defualt namespace as an example
    export SPARK_NAMESPACE=default
    export SPARK_DRIVER_NAME=example-driver
