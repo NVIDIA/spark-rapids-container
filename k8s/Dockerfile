@@ -24,6 +24,10 @@ ARG spark_uid=185
 ARG SPARK_VER=3.2.2
 ARG HADOOP_VER=3.2
 ARG RAPIDS_VER=22.10.0
+ARG hadoop_aws_ver=3.3.1
+ARG aws_java_sdk_bundle_ver=1.11.655
+ARG gcs_connector_ver=2.2.2
+
 
 ENV DEBIAN_FRONTEND=noninteractive
 # https://forums.developer.nvidia.com/t/notice-cuda-linux-repository-key-rotation/212771
@@ -59,11 +63,11 @@ RUN set -ex && \
 
 # Add necessary jars to support AWS s3 storage access
 RUN set -ex && \
-    wget https://repo1.maven.org/maven2/org/apache/hadoop/hadoop-aws/3.3.1/hadoop-aws-3.3.1.jar && \
-    wget https://repo1.maven.org/maven2/com/amazonaws/aws-java-sdk-bundle/1.11.655/aws-java-sdk-bundle-1.11.655.jar
+    wget https://repo1.maven.org/maven2/org/apache/hadoop/hadoop-aws/$hadoop_aws_ver/hadoop-aws-$hadoop_aws_ver.jar && \
+    wget https://repo1.maven.org/maven2/com/amazonaws/aws-java-sdk-bundle/$aws_java_sdk_bundle_ver/aws-java-sdk-bundle-$aws_java_sdk_bundle_ver.jar
 # Add necessary jars to support GCS storage access
 RUN set -ex && \
-    wget https://repo1.maven.org/maven2/com/google/cloud/bigdataoss/gcs-connector/hadoop3-2.2.2/gcs-connector-hadoop3-2.2.2-shaded.jar
+    wget https://repo1.maven.org/maven2/com/google/cloud/bigdataoss/gcs-connector/hadoop3-$gcs_connector_ver/gcs-connector-hadoop3-$gcs_connector_ver-shaded.jar
 # TODO: Add necessary jars to support Azure storage access
 
 # TODO: Investigate running both pip and pip3 via virtualenvs

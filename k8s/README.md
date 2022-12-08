@@ -131,12 +131,16 @@ Then you can see your cluster in the AWS console:
         file:///$PWD/read-s3-test.py
    ```
 
-   Note: to save the Spark application logs for further analysis, please set 
+   Note 1: to save the Spark application logs for further analysis, please set
    `spark.eventLog.enabled=true` and `spark.eventLog.dir=s3a://<s3 bucket to save the logs>`
    It's not recommended to save your logs to a local path in a k8s environment as the logs will be lost
    when the pod is deleted if extra volume related configurations are not set. For more information,
    please refer to [volumes](https://kubernetes.io/docs/concepts/storage/volumes/) and
    [using-kubernetes-volumes](https://spark.apache.org/docs/latest/running-on-kubernetes.html#using-kubernetes-volumes).
+
+   Note 2: Spark supports application file at both local file path or the file path inside the container.
+   Please refer to [Dependency Management](https://spark.apache.org/docs/latest/running-on-kubernetes.html#dependency-management)
+   for more information.
 
    After execution, check the logs of the driver pod:
    ```bash
@@ -253,7 +257,7 @@ For GKE, user need to set some extra configurations to make sure the Spark drive
 --conf spark.hadoop.fs.gs.auth.service.account.private.key=<your gcs service account secret key, saved in key.json>
 --conf spark.hadoop.fs.gs.impl=com.google.cloud.hadoop.fs.gcs.GoogleHadoopFileSystem \
 --conf spark.hadoop.fs.gs.project.id=<your project id> \
---conf spark.kubernetes.file.upload.path=gs://<yoru gs bucket path for file staging> \
+--conf spark.kubernetes.file.upload.path=gs://<your gs bucket path for file staging> \
 ```
 User can modify [read-s3-test.py](./read-s3-test.py) directly with your own gs bucket path and your own query to test the Spark application.
 
