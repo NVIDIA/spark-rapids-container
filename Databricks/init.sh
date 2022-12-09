@@ -25,7 +25,7 @@
 ####################
 # Global constants #
 ####################
-readonly ALLUXIO_VERSION="2.8.0"
+readonly ALLUXIO_VERSION="2.9.0"
 readonly ALLUXIO_HOME="/opt/alluxio-${ALLUXIO_VERSION}"
 readonly ALLUXIO_SITE_PROPERTIES="${ALLUXIO_HOME}/conf/alluxio-site.properties"
 readonly ALLUXIO_METRICS_PROPERTIES_TEMPLATE="${ALLUXIO_HOME}/conf/metrics.properties.template"
@@ -199,6 +199,7 @@ start_ssh() {
 config_alluxio() {
 
   # create the folder for NVMe caching
+  chown -R ubuntu:ubuntu /opt/alluxio*
   mkdir -p /local_disk0/cache
   chown ubuntu:ubuntu /local_disk0/cache
 
@@ -247,7 +248,8 @@ config_alluxio() {
     # supervisor manages processes by subprocess, here we can't use `alluxio-start.sh` as command directly because of `nohup` in it
     cat > /etc/supervisor/conf.d/alluxio-master.conf << EOF
 [program:alluxio-master]
-command=/usr/bin/java ${MASTER_HEAP_SETTING} -cp ${ALLUXIO_HOME}/conf/::${ALLUXIO_HOME}/assembly/alluxio-server-2.8.0.jar -Dalluxio.logger.type=MASTER_LOGGER -Dalluxio.master.audit.logger.type=MASTER_AUDIT_LOGGER -Dalluxio.home=${ALLUXIO_HOME} -Dalluxio.conf.dir=${ALLUXIO_HOME}/conf -Dalluxio.logs.dir=${ALLUXIO_HOME}/logs -Dalluxio.user.logs.dir=${ALLUXIO_HOME}/logs/user -Dlog4j.configuration=file:${ALLUXIO_HOME}/conf/log4j.properties -Dorg.apache.jasper.compiler.disablejsr199=true -Djava.net.preferIPv4Stack=true -Dorg.apache.ratis.thirdparty.io.netty.allocator.useCacheForAllThreads=false -XX:MetaspaceSize=256M alluxio.master.AlluxioMaster
+environment=ALLUXIO_HOME=${ALLUXIO_HOME}
+command=/usr/bin/java ${MASTER_HEAP_SETTING} -cp ${ALLUXIO_HOME}/conf/::${ALLUXIO_HOME}/assembly/alluxio-server-${ALLUXIO_VERSION}.jar -Dalluxio.logger.type=MASTER_LOGGER -Dalluxio.master.audit.logger.type=MASTER_AUDIT_LOGGER -Dalluxio.home=${ALLUXIO_HOME} -Dalluxio.conf.dir=${ALLUXIO_HOME}/conf -Dalluxio.logs.dir=${ALLUXIO_HOME}/logs -Dalluxio.user.logs.dir=${ALLUXIO_HOME}/logs/user -Dlog4j.configurationFile=file:${ALLUXIO_HOME}/conf/log4j2-master.properties -Dorg.apache.jasper.compiler.disablejsr199=true -Djava.net.preferIPv4Stack=true -Dorg.apache.ratis.thirdparty.io.netty.allocator.useCacheForAllThreads=false -XX:MetaspaceSize=256M alluxio.master.AlluxioMaster
 user=ubuntu
 autostart=true ;auto start this program when supervisord starting
 autorestart=true ;supervisord auto starts this program if program crashes
@@ -300,7 +302,7 @@ EOF
     # add supervisor conf for worker
     cat > /etc/supervisor/conf.d/alluxio-worker.conf << EOF
 [program:alluxio-worker]
-command=/usr/bin/java -Xmx${ALLUXIO_WORKER_HEAP} -XX:MaxDirectMemorySize=${ALLUXIO_WORKER_DIRECT_HEAP} -cp ${ALLUXIO_HOME}/conf/::${ALLUXIO_HOME}/assembly/alluxio-server-2.8.0.jar -Dalluxio.logger.type=WORKER_LOGGER -Dalluxio.home=${ALLUXIO_HOME} -Dalluxio.conf.dir=${ALLUXIO_HOME}/conf -Dalluxio.logs.dir=${ALLUXIO_HOME}/logs -Dalluxio.user.logs.dir=${ALLUXIO_HOME}/logs/user -Dlog4j.configuration=file:${ALLUXIO_HOME}/conf/log4j.properties -Dorg.apache.jasper.compiler.disablejsr199=true -Djava.net.preferIPv4Stack=true -Dorg.apache.ratis.thirdparty.io.netty.allocator.useCacheForAllThreads=false alluxio.worker.AlluxioWorker
+command=/usr/bin/java -Xmx${ALLUXIO_WORKER_HEAP} -XX:MaxDirectMemorySize=${ALLUXIO_WORKER_DIRECT_HEAP} -cp ${ALLUXIO_HOME}/conf/::${ALLUXIO_HOME}/assembly/alluxio-server-${ALLUXIO_VERSION}.jar -Dalluxio.logger.type=WORKER_LOGGER -Dalluxio.home=${ALLUXIO_HOME} -Dalluxio.conf.dir=${ALLUXIO_HOME}/conf -Dalluxio.logs.dir=${ALLUXIO_HOME}/logs -Dalluxio.user.logs.dir=${ALLUXIO_HOME}/logs/user -Dlog4j.configurationFile=file:${ALLUXIO_HOME}/conf/log4j2-worker.properties -Dorg.apache.jasper.compiler.disablejsr199=true -Djava.net.preferIPv4Stack=true -Dorg.apache.ratis.thirdparty.io.netty.allocator.useCacheForAllThreads=false alluxio.worker.AlluxioWorker
 user=ubuntu
 autostart=true ;auto start this program when supervisord starting
 autorestart=true ;supervisord auto starts this program if program crashes
