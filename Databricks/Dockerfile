@@ -109,10 +109,19 @@ RUN chmod 755 /opt/spark-rapids/init.sh
 
 WORKDIR /databricks
 
+FROM ubuntu:18.04 as download-modpython
+
+RUN cd /tmp && \
+  apt-get -y update && \
+  apt-get -y download libganglia1 && \
+  ls -al
+
 #############
 # Setup Ganglia
 #############
 FROM with-plugin as with-ganglia
+
+ARG GANGLIA_WEBROOT=/usr/share/ganglia-webfrontend
 
 WORKDIR /databricks
 ENV DEBIAN_FRONTEND=noninteractive
@@ -120,6 +129,7 @@ RUN apt-get update && apt-get install -q -y --force-yes --fix-missing --ignore-m
         ganglia-monitor \
         ganglia-webfrontend \
         ganglia-monitor-python \
+        libpython2.7 \
         python3-pip \
         wget \
         rsync \
@@ -143,6 +153,13 @@ RUN cd /tmp \
   && tar xvjf $PHANTOM_JS.tar.bz2 \
   && mv $PHANTOM_JS /usr/local/share \
   && ln -sf /usr/local/share/$PHANTOM_JS/bin/phantomjs /usr/local/bin
+# Install ganglia modpython
+COPY --from=download-modpython /tmp/libganglia1_*.deb /tmp
+RUN cd /tmp \
+  && mkdir -p /tmp/libganglia1 \
+  && dpkg-deb -xv libganglia1_*.deb /tmp/libganglia1 \
+  && cp /tmp/libganglia1/usr/lib/ganglia/modpython.so /usr/lib/ganglia/ \
+  && rm -rf /tmp/libganglia1
 # Apache2 config. The `sites-enabled` config files are loaded into the container
 # later.
 RUN rm /etc/apache2/sites-enabled/* && a2enmod proxy && a2enmod proxy_http
@@ -173,15 +190,24 @@ check process spark-slave with pidfile /tmp/spark-root-org.apache.spark.deploy.w
 RUN mkdir -p /etc/apache2/sites-enabled
 ADD ganglia/ganglia.conf /etc/apache2/sites-enabled
 RUN chmod 775 /etc/apache2/sites-enabled/ganglia.conf
-ADD ganglia/gconf/* /etc/ganglia/
+ADD ganglia/gconf/*.conf /etc/ganglia/
 RUN mkdir -p /databricks/spark/scripts/ganglia/
 RUN mkdir -p /databricks/spark/scripts/
+RUN mkdir -p $GANGLIA_WEBROOT/graph.d
 ADD ganglia/start_spark_slave.sh /databricks/spark/scripts/start_spark_slave.sh
 
 # add local monit shell script in the right location
 RUN mkdir -p /etc/init.d
 ADD scripts/monit /etc/init.d
 RUN chmod 775 /etc/init.d/monit
+
+# For GPU monitoring in Ganglia, you need the modules available here:
+# https://github.com/ganglia/gmond_python_modules/tree/master/gpu/nvidia/python_modules
+ADD ganglia/gconf/conf.d/* /etc/ganglia/conf.d/
+ADD ganglia/python_modules/* /usr/lib/ganglia/python_modules
+RUN /usr/bin/pip install --upgrade  -t /usr/lib/ganglia/python_modules/ nvidia-ml-py
+
+# Copy the files needed for GPU monitoring in Ganglia
 
 #############
 # Set up webterminal ssh

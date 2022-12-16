@@ -1,0 +1,142 @@
+# Copyright (c) 2022, NVIDIA CORPORATION.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+modules {
+    module {
+        name = "nvidia"
+        language = "python"
+        params = "/usr/lib/ganglia/python_modules"
+    }
+}
+
+/* This collection group will send general info about the GPU every 300 secs.
+   This information doesn't change between reboots and is only collected once. */
+collection_group {
+    collect_once = yes
+    time_threshold = 300
+    metric {
+        name = "gpu_num"
+        title = "Number of GPUs"
+    }
+    metric {
+        name = "gpu_use_num"
+        title = "Number of GPUs in Use"
+    }
+    metric {
+        name = "gpu_driver"
+        title = "GPU Driver Version"
+    }
+    metric {
+        name = "gpu0_type"
+        title = "GPU Device Name"
+    }
+    metric {
+        name = "gpu0_mem_total"
+        title = "GPU Total Memory"
+    }
+    metric {
+        name = "gpu0_perf_state"
+        title = "GPU Performance State"
+    }
+    metric {
+        name = "gpu0_ecc_mode"
+        title = "GPU ECC Mode"
+    }
+    metric {
+        name = "gpu0_power_man_mode"
+        title = "GPU Power Management Mode"
+    }
+    metric {
+        name = "gpu0_power_man_limit"
+        title = "GPU Power Management Limit"
+    }
+    metric {
+        name = "gpu0_shutdown_temp"
+        title = "GPU Shutdown Temperature"
+    }
+    metric {
+        name = "gpu0_slowdown_temp"
+        title = "GPU Slowdown Temperature"
+    }
+    metric {
+        name = "gpu0_bar1_max_memory"
+        title = "GPU BAR1 Total Memory"
+    }
+    metric {
+        name = "gpu0_serial"
+        title = "GPU Serial Number"
+    }
+}
+
+
+/* This collection group will collect the GPU status info every 20 secs.
+   The time threshold is set to 90 seconds.  In honesty, this time_threshold could be
+   set significantly higher to reduce unneccessary network chatter. */
+collection_group {
+    collect_every = 20
+    time_threshold = 90
+    /* GPU status */
+    metric {
+        name = "gpu0_util"
+        title = "GPU Utilization"
+    }
+    metric {
+        name = "gpu0_mem_util"
+        title = "GPU Memory Utilization"
+    }
+    metric {
+        name = "gpu0_fb_memory"
+        title = "GPU Framebuffer Memory Utilization"
+    }
+    metric {
+        name = "gpu0_graphics_clock_report"
+        title = "GPU Graphics Clock"
+    }
+    metric {
+        name = "gpu0_mem_clock_report"
+        title = "GPU Memory Clock"
+    }
+    metric {
+        name = "gpu0_sm_clock_report"
+        title = "GPU SM Clock"
+    }
+    metric {
+        name = "gpu0_power_usage_report"
+        title = "GPU Power Usage"
+    }
+    metric {
+        name = "gpu0_power_violation_report"
+        title = "GPU Power Violation"
+    }
+    metric {
+        name = "gpu0_encoder_util"
+        title = "GPU Encoder Utilization"
+    }
+    metric {
+        name = "gpu0_decoder_util"
+        title = "GPU Decoder Utilization"
+    }
+    metric {
+        name = "gpu0_temp"
+        title = "GPU Temperature"
+    }
+    metric {
+        name = "gpu0_process"
+        title = "Number of GPU Running Processes"
+    }
+    metric {
+        name = "gpu0_bar1_memory"
+        title = "GPU BAR1 Memory Usage"
+    }
+}
