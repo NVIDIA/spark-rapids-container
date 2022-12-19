@@ -216,7 +216,7 @@ def gpu_device_handler(name):
         return len(procs)
     else:
         print "Handler for %s not implemented, please fix in gpu_device_handler()" % metric
-        os._exit(1)
+        os._exit(0)
 
 def metric_init(params):
     global descriptors
@@ -225,8 +225,8 @@ def metric_init(params):
         nvmlInit()
     except NVMLError, err:
         print "Failed to initialize NVML:", str(err)
-        print "Exiting..."
-        os._exit(1)
+        print "GPU metrics will not be collected..."
+        return descriptors
 
     default_time_max = 90
 
@@ -290,4 +290,5 @@ if __name__ == '__main__':
             print 'value for %s is %f %s' % (d['name'], v, d['units'])
         elif d['value_type'] == 'string':
             print 'value for %s is %s %s' % (d['name'], v, d['units'])
-    metric_cleanup()
+    if descriptors:
+        metric_cleanup()
