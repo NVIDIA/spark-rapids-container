@@ -109,6 +109,12 @@ RUN chmod 755 /opt/spark-rapids/init.sh
 
 WORKDIR /databricks
 
+# libganglia1 in ubuntu 20.04 actually is missing the modpython.so library
+# needed for the GPU metrics plugin 
+# this is actually a known packaging bug in Ubuntu
+# See https://bugs.launchpad.net/ubuntu/+source/ganglia/+bug/1894045
+# Therefore we need to download the package from Ubuntu 18.04 (which includes 
+# the missing library)
 FROM ubuntu:18.04 as download-modpython
 
 RUN cd /tmp && \
@@ -153,7 +159,7 @@ RUN cd /tmp \
   && tar xvjf $PHANTOM_JS.tar.bz2 \
   && mv $PHANTOM_JS /usr/local/share \
   && ln -sf /usr/local/share/$PHANTOM_JS/bin/phantomjs /usr/local/bin
-# Install ganglia modpython
+# Install ganglia modpython from Ubuntu 18.04
 COPY --from=download-modpython /tmp/libganglia1_*.deb /tmp
 RUN cd /tmp \
   && mkdir -p /tmp/libganglia1 \
