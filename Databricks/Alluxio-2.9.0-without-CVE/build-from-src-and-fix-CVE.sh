@@ -1,19 +1,43 @@
 #!/bin/bash
+# Copyright (c) 2022, NVIDIA CORPORATION.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+#############################################
+# This script is used to compile, patch Alluxio code and install Alluxio to fix the Alluxio CVE issues.
+# Waiting Alluxio to fix all the Alluxio CVE issues will be a long-term work.
+# So we fix CVE issues by workaround method: build Alluxio ourselves, exclude and upgrade some 3PP jars.
+#############################################
+
 set -e
 
-# clone, apply patches and compile
+# clone Alluxio code, apply patches and compile
 cd /tmp/Alluxio-2.9.0-without-CVE
 git config --global user.email "you@example.com"
 git config --global user.name "Your Name"
 git clone https://github.com/Alluxio/alluxio.git
 cd alluxio/
 git checkout v2.9.0 -b v2.9.0-fix-cve
-git am < /tmp/Alluxio-2.9.0-without-CVE/patches/0001-Fix-CVE-issues.patch
-git am < /tmp/Alluxio-2.9.0-without-CVE/patches/0002-Fix-CVE-issues.patch
-git am < /tmp/Alluxio-2.9.0-without-CVE/patches/0003-Fix-CVE-issues.patch
+git am < /tmp/Alluxio-2.9.0-without-CVE/patches/*
+# update `libexec/alluxio-config.sh`, replace the client and server jar as the Alluxio building script does.
+# For details, refer to:
+# https://github.com/Alluxio/alluxio/blob/v2.9.0/dev/scripts/src/alluxio.org/build-distribution/cmd/generate-tarball.go#L274-L275
+git am < /tmp/Alluxio-2.9.0-without-CVE/update-assembly-jar-path.patch
+
 echo "Compiling Alluxio, this may take some time ..."
 mvn clean install -q -Pufs-hadoop-3 -Dufs.hadoop.version=3.2.4 -Dmaven.javadoc.skip=true -Dmaven.test.skip=true -Dlicense.skip=true -Dcheckstyle.skip=true -Dfindbugs.skip=true -Dhadoop.version=3.2.4 -T 4
 echo "Compile done"
+
 # setup Alluxio program located in `/opt` path
 cd ../
 mkdir alluxio-2.9.0
@@ -28,7 +52,8 @@ cp ./log4j2-master.properties ./log4j2-worker.properties ./alluxio-2.9.0/conf
 mkdir ./alluxio-2.9.0/lib
 cp ./alluxio/lib/alluxio-underfs-local-2.9.0.jar ./alluxio-2.9.0/lib
 cp ./alluxio/lib/alluxio-underfs-s3a-2.9.0.jar ./alluxio-2.9.0/lib
-cp -r ./libexec ./alluxio-2.9.0
+cp -r ./alluxio/libexec ./alluxio-2.9.0
+
 cp ./alluxio/LICENSE ./alluxio-2.9.0/LICENSE
 mkdir ./alluxio-2.9.0/webui
 cp -r ./alluxio/webui/master ./alluxio-2.9.0/webui
