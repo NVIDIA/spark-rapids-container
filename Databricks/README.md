@@ -99,8 +99,9 @@ spark.rapids.sql.coalescing.reader.numFilterParallel 2
 spark.rapids.sql.multiThreadedRead.numThreads 40
 ```
 
-4. In the `Environment variables` field, add the line `ENABLE_ALLUXIO=1`.
-
+4. In the `Environment variables` field, add the following lines:   
+    `ENABLE_ALLUXIO=1`   
+    `ALLUXIO_HOME=/opt/alluxio-2.9.0`   
 ![Environment-Variables-View](img/environment-variables.png)
 
 5. Customize Alluxio configuration using the following configs if needed. These should be added in the `Environment variables` field if you wish to change them.

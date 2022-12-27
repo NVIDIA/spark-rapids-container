@@ -248,7 +248,6 @@ config_alluxio() {
     # supervisor manages processes by subprocess, here we can't use `alluxio-start.sh` as command directly because of `nohup` in it
     cat > /etc/supervisor/conf.d/alluxio-master.conf << EOF
 [program:alluxio-master]
-environment=ALLUXIO_HOME=${ALLUXIO_HOME}
 command=/usr/bin/java ${MASTER_HEAP_SETTING} -cp ${ALLUXIO_HOME}/conf/::${ALLUXIO_HOME}/assembly/alluxio-server-${ALLUXIO_VERSION}.jar -Dalluxio.logger.type=MASTER_LOGGER -Dalluxio.master.audit.logger.type=MASTER_AUDIT_LOGGER -Dalluxio.home=${ALLUXIO_HOME} -Dalluxio.conf.dir=${ALLUXIO_HOME}/conf -Dalluxio.logs.dir=${ALLUXIO_HOME}/logs -Dalluxio.user.logs.dir=${ALLUXIO_HOME}/logs/user -Dlog4j.configurationFile=file:${ALLUXIO_HOME}/conf/log4j2-master.properties -Dorg.apache.jasper.compiler.disablejsr199=true -Djava.net.preferIPv4Stack=true -Dorg.apache.ratis.thirdparty.io.netty.allocator.useCacheForAllThreads=false -XX:MetaspaceSize=256M alluxio.master.AlluxioMaster
 user=ubuntu
 autostart=true ;auto start this program when supervisord starting
