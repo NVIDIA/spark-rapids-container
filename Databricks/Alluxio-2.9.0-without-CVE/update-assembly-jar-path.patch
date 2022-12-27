@@ -1,10 +1,19 @@
+From 44d2bb679d945beea4c681ee17d8f267d71db53a Mon Sep 17 00:00:00 2001
+From: Your Name <you@example.com>
+Date: Tue, 27 Dec 2022 13:47:19 +0800
+Subject: [PATCH] Update assembly jar path
+
+---
+ libexec/alluxio-config.sh | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
 diff --git a/libexec/alluxio-config.sh b/libexec/alluxio-config.sh
-index 9af01b9ca3..8118ce9f0f 100755
+index a5c89aad08..058fcd69a5 100755
 --- a/libexec/alluxio-config.sh
 +++ b/libexec/alluxio-config.sh
 @@ -29,8 +29,8 @@ this="${config_bin}/${script}"
  # set system installation locations.
- VERSION=2.9.0-SNAPSHOT
+ VERSION=2.9.0
  ALLUXIO_HOME=$(dirname $(dirname "${this}"))
 -ALLUXIO_ASSEMBLY_CLIENT_JAR="${ALLUXIO_HOME}/assembly/client/target/alluxio-assembly-client-${VERSION}-jar-with-dependencies.jar"
 -ALLUXIO_ASSEMBLY_SERVER_JAR="${ALLUXIO_HOME}/assembly/server/target/alluxio-assembly-server-${VERSION}-jar-with-dependencies.jar"
@@ -13,3 +22,6 @@ index 9af01b9ca3..8118ce9f0f 100755
  ALLUXIO_CONF_DIR="${ALLUXIO_CONF_DIR:-${ALLUXIO_HOME}/conf}"
  ALLUXIO_LOGS_DIR="${ALLUXIO_LOGS_DIR:-${ALLUXIO_HOME}/logs}"
  ALLUXIO_USER_LOGS_DIR="${ALLUXIO_USER_LOGS_DIR:-${ALLUXIO_LOGS_DIR}/user}"
+-- 
+2.32.0 (Apple Git-132)
+

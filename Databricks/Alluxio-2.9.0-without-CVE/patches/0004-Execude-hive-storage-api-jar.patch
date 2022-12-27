@@ -1,0 +1,27 @@
+From cc86b4e8cb3af38197d8cd7a5e6e598acd069063 Mon Sep 17 00:00:00 2001
+From: Chong Gao <res_life@163.com>
+Date: Tue, 27 Dec 2022 14:55:03 +0800
+Subject: [PATCH] Execude hive-storage-api jar
+
+---
+ assembly/server/pom.xml | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/assembly/server/pom.xml b/assembly/server/pom.xml
+index 9c7b87a454..1b829ef17c 100644
+--- a/assembly/server/pom.xml
++++ b/assembly/server/pom.xml
+@@ -86,6 +86,10 @@
+                 <excludes>
+                   <exclude>org.alluxio:alluxio-microbench</exclude>
+                   <exclude>org.openjdk.jmh:*</exclude>
++                  <!-- workaround method: exclude hive-storage-api jar -->
++                  <!-- The dependency path is: alluxio-job-server project -> orc-core jar -> hive-storage-api jar -->
++                  <!-- We actually are not using the job server -->
++                  <exclude>org.apache.hive:hive-storage-api</exclude>
+                 </excludes>
+               </artifactSet>
+               <filters>
+-- 
+2.25.1
+

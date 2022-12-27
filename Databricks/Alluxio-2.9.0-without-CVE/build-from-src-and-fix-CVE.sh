@@ -28,11 +28,11 @@ git config --global user.name "Your Name"
 git clone https://github.com/Alluxio/alluxio.git
 cd alluxio/
 git checkout v2.9.0 -b v2.9.0-fix-cve
-git am < /tmp/Alluxio-2.9.0-without-CVE/patches/*
+git am /tmp/Alluxio-2.9.0-without-CVE/patches/*
 # update `libexec/alluxio-config.sh`, replace the client and server jar as the Alluxio building script does.
 # For details, refer to:
 # https://github.com/Alluxio/alluxio/blob/v2.9.0/dev/scripts/src/alluxio.org/build-distribution/cmd/generate-tarball.go#L274-L275
-git am < /tmp/Alluxio-2.9.0-without-CVE/update-assembly-jar-path.patch
+git am /tmp/Alluxio-2.9.0-without-CVE/update-assembly-jar-path.patch
 
 echo "Compiling Alluxio, this may take some time ..."
 mvn clean install -q -Pufs-hadoop-3 -Dufs.hadoop.version=3.2.4 -Dmaven.javadoc.skip=true -Dmaven.test.skip=true -Dlicense.skip=true -Dcheckstyle.skip=true -Dfindbugs.skip=true -Dhadoop.version=3.2.4 -T 4
