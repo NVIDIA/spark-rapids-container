@@ -61,3 +61,4 @@ cp -r ./alluxio/webui/worker ./alluxio-2.9.0/webui
 mkdir ./alluxio-2.9.0/logs
 mv alluxio-2.9.0 /opt
 rm -rf /tmp/Alluxio-2.9.0-without-CVE
+rm -rf ~/.m2
