@@ -54,15 +54,13 @@ RUN set -ex && \
     apt-get install -y less vim && \
     /var/lib/dpkg/info/ca-certificates-java.postinst configure && \
     # Initialize the default environment that Spark and notebooks will use
-    virtualenv -p python3.8 --system-site-packages /databricks/python3 --no-download --no-setuptools \
+    virtualenv -p python3.8 --system-site-packages /databricks/python3 --no-download --no-setuptools --wheel 0.38.4 \
         && /databricks/python3/bin/pip install --no-cache-dir --upgrade pip \
         && /databricks/python3/bin/pip install \
             databricks-cli \
             ipython \
         && /databricks/python3/bin/pip install --force-reinstall \
             virtualenv \
-        # Upgrade wheel to 0.38.x to solve CVE-2022-40898: https://github.com/advisories/GHSA-qwmp-2cf2-g9g6
-        && /databricks/python3/bin/pip install wheel --upgrade \
         && /databricks/python3/bin/pip cache purge && \
     apt-get -y purge --autoremove software-properties-common cuda-cudart-dev-${CUDA_PKG_VERSION} cuda-cupti-dev-${CUDA_PKG_VERSION} \
                cuda-driver-dev-${CUDA_PKG_VERSION} cuda-nvcc-${CUDA_PKG_VERSION} cuda-thrust-${CUDA_PKG_VERSION} \
