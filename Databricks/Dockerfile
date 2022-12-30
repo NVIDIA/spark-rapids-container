@@ -61,6 +61,8 @@ RUN set -ex && \
             ipython \
         && /databricks/python3/bin/pip install --force-reinstall \
             virtualenv \
+        # Upgrade wheel to 0.38.x to solve CVE-2022-40898: https://github.com/advisories/GHSA-qwmp-2cf2-g9g6
+        && /databricks/python3/bin/pip install wheel --upgrade \
         && /databricks/python3/bin/pip cache purge && \
     apt-get -y purge --autoremove software-properties-common cuda-cudart-dev-${CUDA_PKG_VERSION} cuda-cupti-dev-${CUDA_PKG_VERSION} \
                cuda-driver-dev-${CUDA_PKG_VERSION} cuda-nvcc-${CUDA_PKG_VERSION} cuda-thrust-${CUDA_PKG_VERSION} \
