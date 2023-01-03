@@ -5,3 +5,4 @@ This repo provides the files to build the Docker conatiners with [RAPIDS Acceler
 ## Docker containers
 
 - [Databricks container](/Databricks)
+- [Kubenetes container](/k8s)

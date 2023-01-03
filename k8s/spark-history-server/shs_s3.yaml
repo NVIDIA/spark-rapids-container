@@ -1,0 +1,19 @@
+#shs_s3.yaml
+pvc:
+ enablePVC: false
+ existingClaimName: nfs-pvc
+ eventsDir: “/”
+nfs:
+ enableExampleNFS: false
+ pvName: nfs-pv
+ pvcName: nfs-pvc
+s3:
+ enableS3: true
+ enableIAM: false
+ secret: aws-secrets
+ accessKeyName: aws-access-key
+ secretKeyName: aws-secret-key
+ logDirectory: s3a://<your s3 bucket path for Spark Event Logs>
+image:
+ repository: <repo>
+ tag: <tag>
