@@ -58,8 +58,8 @@ RUN set -ex && \
     wget -O rapids-4-spark-KEYS https://keys.openpgp.org/vks/v1/by-fingerprint/7A8A39909B9B202410C2A26F1D9E1285654392EF && \
     gpg --import rapids-4-spark-KEYS && \
     wget https://repo1.maven.org/maven2/com/nvidia/rapids-4-spark_2.12/$RAPIDS_VER/rapids-4-spark_2.12-$RAPIDS_VER-cuda11.jar.asc && \
-    wget https://repo1.maven.org/maven2/com/nvidia/rapids-4-spark_2.12/$RAPIDS_VER/rapids-4-spark_2.12-$RAPIDS_VER.jar && \
-    gpg --verify rapids-4-spark_2.12-$RAPIDS_VER-cuda11.jar.asc rapids-4-spark_2.12-$RAPIDS_VER.jar
+    wget https://repo1.maven.org/maven2/com/nvidia/rapids-4-spark_2.12/$RAPIDS_VER/rapids-4-spark_2.12-$RAPIDS_VER-cuda11.jar && \
+    gpg --verify rapids-4-spark_2.12-$RAPIDS_VER-cuda11.jar.asc rapids-4-spark_2.12-$RAPIDS_VER-cuda11.jar
 
 # Add necessary jars to support AWS s3 storage access
 RUN set -ex && \
