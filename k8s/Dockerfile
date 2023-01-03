@@ -23,7 +23,7 @@ FROM nvidia/cuda:${CUDA_VER}-runtime-ubuntu${UBUNTU_VER}
 ARG spark_uid=185
 ARG SPARK_VER=3.2.2
 ARG HADOOP_VER=3.2
-ARG RAPIDS_VER=22.10.0
+ARG RAPIDS_VER=22.12.0
 ARG hadoop_aws_ver=3.3.1
 ARG aws_java_sdk_bundle_ver=1.11.655
 ARG gcs_connector_ver=2.2.2
