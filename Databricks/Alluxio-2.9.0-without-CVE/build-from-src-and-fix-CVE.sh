@@ -39,6 +39,7 @@ mvn clean install -q -Pufs-hadoop-3 -Dufs.hadoop.version=3.2.4 -Dmaven.javadoc.s
 echo "Compile done"
 
 # setup Alluxio program located in `/opt` path
+# This section is copying only specific jars so we can avoid CVE issues in the unused jars
 cd ../
 mkdir alluxio-2.9.0
 cp -r ./alluxio/bin ./alluxio-2.9.0
@@ -50,6 +51,7 @@ cp ./alluxio/client/alluxio-2.9.0-client.jar ./alluxio-2.9.0/client
 cp -r ./alluxio/conf/ ./alluxio-2.9.0/conf
 cp ./log4j2-master.properties ./log4j2-worker.properties ./alluxio-2.9.0/conf
 mkdir ./alluxio-2.9.0/lib
+# Skip coping other /lib/alluxio-underfs-xxx.jar except the underfs-local and underfs-s3a 2 jars
 cp ./alluxio/lib/alluxio-underfs-local-2.9.0.jar ./alluxio-2.9.0/lib
 cp ./alluxio/lib/alluxio-underfs-s3a-2.9.0.jar ./alluxio-2.9.0/lib
 cp -r ./alluxio/libexec ./alluxio-2.9.0
