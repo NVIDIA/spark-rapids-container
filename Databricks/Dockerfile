@@ -54,7 +54,7 @@ RUN set -ex && \
     apt-get install -y less vim && \
     /var/lib/dpkg/info/ca-certificates-java.postinst configure && \
     # Initialize the default environment that Spark and notebooks will use
-    virtualenv -p python3.8 --system-site-packages /databricks/python3 --no-download --no-setuptools \
+    virtualenv -p python3.8 --system-site-packages /databricks/python3 --no-download --no-setuptools --wheel 0.38.4 \
         && /databricks/python3/bin/pip install --no-cache-dir --upgrade pip \
         && /databricks/python3/bin/pip install \
             databricks-cli \
@@ -96,8 +96,8 @@ FROM base as with-plugin
 # Spark RAPIDS configuration
 #############
 ARG DRIVER_CONF_FILE=00-custom-spark-driver-defaults.conf
-ARG JAR_FILE=rapids-4-spark_2.12-22.10.0.jar
-ARG JAR_URL=https://repo1.maven.org/maven2/com/nvidia/rapids-4-spark_2.12/22.10.0/${JAR_FILE}
+ARG JAR_FILE=rapids-4-spark_2.12-22.12.0.jar
+ARG JAR_URL=https://repo1.maven.org/maven2/com/nvidia/rapids-4-spark_2.12/22.12.0/${JAR_FILE}
 ARG INIT_SCRIPT=init.sh
 COPY ${DRIVER_CONF_FILE} /databricks/driver/conf/00-custom-spark-driver-defaults.conf
 
@@ -243,15 +243,14 @@ FROM with-webterminal as with-alluxio
 #############
 # Setup Alluxio
 #############
-ARG ALLUXIO_VERSION=2.8.0
+RUN apt-get update && apt-get install -q -y git maven
+ARG ALLUXIO_VERSION=2.9.0
 ARG ALLUXIO_HOME="/opt/alluxio-${ALLUXIO_VERSION}"
 ARG ALLUXIO_TAR_FILE="alluxio-${ALLUXIO_VERSION}-bin.tar.gz"
-ARG ALLUXIO_DOWNLOAD_URL="https://downloads.alluxio.io/downloads/files/${ALLUXIO_VERSION}/${ALLUXIO_TAR_FILE}"
-
-RUN wget -O /tmp/$ALLUXIO_TAR_FILE ${ALLUXIO_DOWNLOAD_URL} \
-    && tar zxf /tmp/${ALLUXIO_TAR_FILE} -C /opt/ \
-    && rm -f /tmp/${ALLUXIO_TAR_FILE} \
-    && cp ${ALLUXIO_HOME}/client/alluxio-${ALLUXIO_VERSION}-client.jar /databricks/jars/
+ADD Alluxio-2.9.0-without-CVE /tmp/Alluxio-2.9.0-without-CVE
+# clone 2.9.0 source, fix CVE issues, compile, then install to /opt/alluxio-x.x.x
+RUN /tmp/Alluxio-2.9.0-without-CVE/build-from-src-and-fix-CVE.sh
+RUN cp ${ALLUXIO_HOME}/client/alluxio-${ALLUXIO_VERSION}-client.jar /databricks/jars/
 
 #############
 # Setup Prometheus
