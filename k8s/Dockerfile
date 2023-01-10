@@ -16,7 +16,7 @@
 
 # A Dockerfile for building a container dedicated to run inside k8s cluster.
 ARG CUDA_VER=11.5.0
-ARG UBUNTU_VER=18.04
+ARG UBUNTU_VER=20.04
 FROM nvidia/cuda:${CUDA_VER}-runtime-ubuntu${UBUNTU_VER}
 
 # All build args with default values
@@ -72,11 +72,9 @@ RUN set -ex && \
 
 # TODO: Investigate running both pip and pip3 via virtualenvs
 RUN apt-get update && \
-    apt install -y python python-pip && \
     apt install -y python3 python3-pip && \
     # We remove ensurepip since it adds no functionality since pip is
     # installed on the image and it just takes up 1.6MB on the image
-    rm -r /usr/lib/python*/ensurepip && \
     pip install --upgrade pip setuptools && \
     # You may install with python3 packages by using pip3.6
     # Removed the .cache to save space
@@ -96,6 +94,11 @@ RUN rm /bin/sh && \
     ln -sv /bin/bash /bin/sh && \
     echo "auth required pam_wheel.so use_uid" >> /etc/pam.d/su && \
     chgrp root /etc/passwd && chmod ug+rw /etc/passwd
+
+# always use python3 to launch pyspark, otherwise there will be python syntax error when
+# python2 is used.
+ENV PYSPARK_PYTHON=/usr/bin/python3
+RUN update-alternatives --install /usr/bin/python python /usr/bin/python3 10
 
 ENTRYPOINT [ "/opt/spark/kubernetes/dockerfiles/spark/entrypoint.sh" ]
 
