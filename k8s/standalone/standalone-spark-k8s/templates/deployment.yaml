@@ -50,7 +50,7 @@ spec:
           command: ["/bin/bash", "-c", "/opt/spark/sbin/start-master.sh && tail -f /opt/spark/logs/spark--org.apache.spark.deploy.master.Master*.out"]
           volumeMounts:
             - name: {{ .Release.Name }}-spark-conf
-              mountPath: /opt/spark/conf/spark-default.conf
+              mountPath: /opt/spark/conf/spark-defaults.conf
               subPath: spark-default.conf
       {{- with .Values.nodeSelector }}
       nodeSelector:
@@ -109,7 +109,7 @@ spec:
           command: ["/bin/bash", "-c", "/opt/spark/sbin/start-worker.sh spark://{{ .Values.spark.endpoint }}:7077  && tail -f /opt/spark/logs/spark--org.apache.spark.deploy.worker.Worker*.out"]
           volumeMounts:
             - name: {{ .Release.Name }}-spark-conf
-              mountPath: /opt/spark/conf/spark-default.conf
+              mountPath: /opt/spark/conf/spark-defaults.conf
               subPath: spark-default.conf
           ports:
             - name: http
