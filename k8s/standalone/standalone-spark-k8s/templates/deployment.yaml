@@ -48,6 +48,10 @@ spec:
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
           command: ["/bin/bash", "-c", "/opt/spark/sbin/start-master.sh && tail -f /opt/spark/logs/spark--org.apache.spark.deploy.master.Master*.out"]
+          volumeMounts:
+            - name: {{ .Release.Name }}-spark-conf
+              mountPath: /opt/spark/conf/spark-default.conf
+              subPath: spark-default.conf
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
@@ -60,6 +64,11 @@ spec:
       tolerations:
         {{- toYaml . | nindent 8 }}
       {{- end }}
+      volumes:
+        - name: {{ .Release.Name }}-spark-conf
+          configMap:
+            name: {{ include "standalone-spark-k8s.fullname" . }}
+
 ---
 
 apiVersion: apps/v1
@@ -98,6 +107,10 @@ spec:
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           command: ["/bin/bash", "-c", "/opt/spark/sbin/start-worker.sh spark://{{ .Values.spark.endpoint }}:7077  && tail -f /opt/spark/logs/spark--org.apache.spark.deploy.worker.Worker*.out"]
+          volumeMounts:
+            - name: {{ .Release.Name }}-spark-conf
+              mountPath: /opt/spark/conf/spark-default.conf
+              subPath: spark-default.conf
           ports:
             - name: http
               containerPort: 8081
@@ -124,3 +137,7 @@ spec:
       tolerations:
         {{- toYaml . | nindent 8 }}
       {{- end }}
+      volumes:
+        - name: {{ .Release.Name }}-spark-conf
+          configMap:
+            name: {{ include "standalone-spark-k8s.fullname" . }}
