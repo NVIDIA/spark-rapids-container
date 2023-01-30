@@ -142,6 +142,15 @@ Then you can see your cluster in the AWS console:
    Please refer to [Dependency Management](https://spark.apache.org/docs/latest/running-on-kubernetes.html#dependency-management)
    for more information.
 
+   Note3: This image contains necessary extra jars for DeltaLake, user needs to add extra Spark configurations to enable it:
+   ```bash
+   --conf spark.sql.extensions=io.delta.sql.DeltaSparkSessionExtension \
+   --conf spark.sql.catalog.spark_catalog=org.apache.spark.sql.delta.catalog.DeltaCatalog \
+   --conf spark.hive.metastore.uris=thrift://<HIVE-IP>:9083 \
+   --conf spark.sql.catalogImplementation=hive \
+   ```
+   For more information, please refer to [DeltaLake](https://docs.delta.io/latest/quick-start.html).
+
    After execution, check the logs of the driver pod:
    ```bash
    $ kubectl logs example-driver

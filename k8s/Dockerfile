@@ -27,7 +27,7 @@ ARG RAPIDS_VER=22.12.0
 ARG hadoop_aws_ver=3.3.1
 ARG aws_java_sdk_bundle_ver=1.11.655
 ARG gcs_connector_ver=2.2.2
-
+ARG delta_core_ver=2.0.2
 
 ENV DEBIAN_FRONTEND=noninteractive
 # https://forums.developer.nvidia.com/t/notice-cuda-linux-repository-key-rotation/212771
@@ -81,6 +81,11 @@ RUN apt-get update && \
     rm -r /root/.cache && rm -rf /var/cache/apt/*
 
 ENV SPARK_HOME /opt/spark
+
+# Add DeltaLake jar
+RUN set -ex && \
+    wget https://repo1.maven.org/maven2/io/delta/delta-core_2.12/$delta_core_ver/delta-core_2.12-$delta_core_ver.jar && \
+    wget https://repo1.maven.org/maven2/io/delta/delta-storage/$delta_core_ver/delta-storage-$delta_core_ver.jar
 
 RUN mkdir -p /opt/spark/work-dir
 WORKDIR /opt/spark/work-dir
