@@ -21,13 +21,14 @@ FROM nvidia/cuda:${CUDA_VER}-runtime-ubuntu${UBUNTU_VER}
 
 # All build args with default values
 ARG spark_uid=185
-ARG SPARK_VER=3.2.2
-ARG HADOOP_VER=3.2
+ARG SPARK_VER=3.3.1
+ARG HADOOP_VER=3
 ARG RAPIDS_VER=22.12.0
 ARG hadoop_aws_ver=3.3.1
 ARG aws_java_sdk_bundle_ver=1.11.655
 ARG gcs_connector_ver=2.2.2
-ARG delta_core_ver=2.0.2
+# For DeltaLake, strict version compatibility with SPARK_VER, see: https://docs.delta.io/latest/releases.html#compatibility-with-apache-spark
+ARG delta_core_ver=2.2.0
 
 ENV DEBIAN_FRONTEND=noninteractive
 # https://forums.developer.nvidia.com/t/notice-cuda-linux-repository-key-rotation/212771

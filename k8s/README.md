@@ -149,6 +149,7 @@ Then you can see your cluster in the AWS console:
    --conf spark.hive.metastore.uris=thrift://<HIVE-IP>:9083 \
    --conf spark.sql.catalogImplementation=hive \
    ```
+   DeltaLake has a strict [version compatibility with Apache Spark](https://docs.delta.io/latest/releases.html#compatibility-with-apache-spark).
    For more information, please refer to [DeltaLake](https://docs.delta.io/latest/quick-start.html).
 
    After execution, check the logs of the driver pod:
