@@ -20,14 +20,15 @@ ARG UBUNTU_VER=20.04
 FROM nvidia/cuda:${CUDA_VER}-runtime-ubuntu${UBUNTU_VER}
 
 # All build args with default values
-ARG spark_uid=185
-ARG SPARK_VER=3.2.2
-ARG HADOOP_VER=3.2
+ARG SPARK_UID=185
+ARG SPARK_VER=3.3.1
+ARG HADOOP_VER=3
 ARG RAPIDS_VER=22.12.0
-ARG hadoop_aws_ver=3.3.1
-ARG aws_java_sdk_bundle_ver=1.11.655
-ARG gcs_connector_ver=2.2.2
-
+ARG HADOOP_AWS_VER=3.3.1
+ARG AWS_JAVA_SDK_BUNDLE_VER=1.11.655
+ARG GCS_CONNECTOR_VER=2.2.2
+# For DeltaLake, strict version compatibility with SPARK_VER, see: https://docs.delta.io/latest/releases.html#compatibility-with-apache-spark
+ARG DELTA_CORE_VER=2.2.0
 
 ENV DEBIAN_FRONTEND=noninteractive
 # https://forums.developer.nvidia.com/t/notice-cuda-linux-repository-key-rotation/212771
@@ -63,11 +64,11 @@ RUN set -ex && \
 
 # Add necessary jars to support AWS s3 storage access
 RUN set -ex && \
-    wget https://repo1.maven.org/maven2/org/apache/hadoop/hadoop-aws/$hadoop_aws_ver/hadoop-aws-$hadoop_aws_ver.jar && \
-    wget https://repo1.maven.org/maven2/com/amazonaws/aws-java-sdk-bundle/$aws_java_sdk_bundle_ver/aws-java-sdk-bundle-$aws_java_sdk_bundle_ver.jar
+    wget https://repo1.maven.org/maven2/org/apache/hadoop/hadoop-aws/$HADOOP_AWS_VER/hadoop-aws-$HADOOP_AWS_VER.jar && \
+    wget https://repo1.maven.org/maven2/com/amazonaws/aws-java-sdk-bundle/$AWS_JAVA_SDK_BUNDLE_VER/aws-java-sdk-bundle-$AWS_JAVA_SDK_BUNDLE_VER.jar
 # Add necessary jars to support GCS storage access
 RUN set -ex && \
-    wget https://repo1.maven.org/maven2/com/google/cloud/bigdataoss/gcs-connector/hadoop3-$gcs_connector_ver/gcs-connector-hadoop3-$gcs_connector_ver-shaded.jar
+    wget https://repo1.maven.org/maven2/com/google/cloud/bigdataoss/gcs-connector/hadoop3-$GCS_CONNECTOR_VER/gcs-connector-hadoop3-$GCS_CONNECTOR_VER-shaded.jar
 # TODO: Add necessary jars to support Azure storage access
 
 # TODO: Investigate running both pip and pip3 via virtualenvs
@@ -81,6 +82,11 @@ RUN apt-get update && \
     rm -r /root/.cache && rm -rf /var/cache/apt/*
 
 ENV SPARK_HOME /opt/spark
+
+# Add DeltaLake jar
+RUN set -ex && \
+    wget https://repo1.maven.org/maven2/io/delta/delta-core_2.12/$DELTA_CORE_VER/delta-core_2.12-$DELTA_CORE_VER.jar && \
+    wget https://repo1.maven.org/maven2/io/delta/delta-storage/$DELTA_CORE_VER/delta-storage-$DELTA_CORE_VER.jar
 
 RUN mkdir -p /opt/spark/work-dir
 WORKDIR /opt/spark/work-dir
@@ -103,4 +109,4 @@ RUN update-alternatives --install /usr/bin/python python /usr/bin/python3 10
 ENTRYPOINT [ "/opt/spark/kubernetes/dockerfiles/spark/entrypoint.sh" ]
 
 # Specify the User that the actual main process will run as
-USER ${spark_uid}
+USER ${SPARK_UID}
