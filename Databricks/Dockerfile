@@ -26,6 +26,7 @@ ARG CUDA_VERSION=11.5.2
 FROM nvidia/cuda:${CUDA_VERSION}-runtime-ubuntu20.04 as base
 
 ARG CUDA_PKG_VERSION=11-5
+ARG DATABRICKS_RUNTIME_VERSION=10.4
 
 #############
 # Install all needed libs
@@ -59,6 +60,7 @@ RUN set -ex && \
         && /databricks/python3/bin/pip install \
             databricks-cli \
             ipython \
+        && if [ "$DATABRICKS_RUNTIME_VERSION" = "11.3" ]; then set -ex && /databricks/python3/bin/pip install ipykernel==6.12.1; fi \
         && /databricks/python3/bin/pip install --force-reinstall \
             virtualenv \
         && /databricks/python3/bin/pip cache purge && \
@@ -83,7 +85,6 @@ RUN set -ex && \
 #############
 # Set all env variables
 #############
-ARG DATABRICKS_RUNTIME_VERSION=10.4
 ENV PYSPARK_PYTHON=/databricks/python3/bin/python3
 ENV DATABRICKS_RUNTIME_VERSION=${DATABRICKS_RUNTIME_VERSION}
 ENV LANG=C.UTF-8
