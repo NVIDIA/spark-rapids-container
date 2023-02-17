@@ -41,6 +41,7 @@ docker build \
   --build-arg JAR_URL=${JAR_URL} \
   --build-arg JAR_FILE=${JAR_FILE} \
   --build-arg DRIVER_CONF_FILE=${DRIVER_CONF_FILE} \
+  --build-arg DATABRICKS_RUNTIME_VERSION=${DATABRICKS_RUNTIME_VERSION} \
   --target $STAGE \
   -f ${DOCKERFILE} \
   -t "${REPO_BASE}/${TAG_NAME}:${TAG_VERSION}" \

@@ -60,7 +60,7 @@ RUN set -ex && \
         && /databricks/python3/bin/pip install \
             databricks-cli \
             ipython \
-        && if [ "$DATABRICKS_RUNTIME_VERSION" = "11.3" ]; then set -ex && /databricks/python3/bin/pip install ipykernel==6.12.1; fi \
+        && if [ "$DATABRICKS_RUNTIME_VERSION" = "11.3" ]; then set -ex && /databricks/python3/bin/pip install ipykernel==6.12.1 matplotlib==3.4.3; fi \
         && /databricks/python3/bin/pip install --force-reinstall \
             virtualenv \
         && /databricks/python3/bin/pip cache purge && \
