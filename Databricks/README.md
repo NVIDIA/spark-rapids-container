@@ -29,8 +29,6 @@ Currently the Docker container supports the following Databricks runtime(s) via 
 - [Databricks 10.4 LTS](https://docs.databricks.com/release-notes/runtime/10.4.html#system-environment)
 - [Databricks 11.3 LTS](https://docs.databricks.com/release-notes/runtime/11.3.html#system-environment)
 
-To build for Databricks 11.3, you should define "DATABRICKS_RUNTIME_VERSION=11.3" when running build.sh.
-
 See [Customize containers with Databricks Container Services](https://docs.databricks.com/clusters/custom-containers.html) for more information.
 
 Create a Databricks cluster by going to Clusters, then clicking `+ Create Cluster`.  Ensure the
