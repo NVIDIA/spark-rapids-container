@@ -1,4 +1,4 @@
-# Copyright (c) 2022, NVIDIA CORPORATION.
+# Copyright (c) 2022-2023, NVIDIA CORPORATION.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -255,7 +255,7 @@ RUN cp ${ALLUXIO_HOME}/client/alluxio-${ALLUXIO_VERSION}-client.jar /databricks/
 #############
 # Setup Prometheus
 #############
-ARG PROMETHEUS_VERSION=2.37.3
+ARG PROMETHEUS_VERSION=2.37.6
 ARG PROMETHEUS_TAR_FILE=prometheus-${PROMETHEUS_VERSION}.linux-amd64.tar.gz
 ARG PROMETHEUS_DOWNLOAD_URL=https://github.com/prometheus/prometheus/releases/download/v${PROMETHEUS_VERSION}/${PROMETHEUS_TAR_FILE}
 RUN wget -O /tmp/${PROMETHEUS_TAR_FILE} ${PROMETHEUS_DOWNLOAD_URL} \

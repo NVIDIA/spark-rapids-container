@@ -1,5 +1,5 @@
 #!/bin/bash
-# Copyright (c) 2022, NVIDIA CORPORATION.
+# Copyright (c) 2022-2023, NVIDIA CORPORATION.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -39,7 +39,7 @@ ALLUXIO_WORKER_DIRECT_HEAP=${ALLUXIO_WORKER_DIRECT_HEAP:-'4g'}
 ALLUXIO_COPY_LOG_PATH=${ALLUXIO_COPY_LOG_PATH:-''}
 
 # Prometheus
-readonly PROMETHEUS_VERSION=2.37.3
+readonly PROMETHEUS_VERSION=2.37.6
 readonly PROMETHEUS_HOME=/opt/prometheus-${PROMETHEUS_VERSION}.linux-amd64
 readonly PROMETHEUS_CFG_PATH=${PROMETHEUS_HOME}/prometheus.yml
 PROMETHEUS_COPY_DATA_PATH=${PROMETHEUS_COPY_DATA_PATH:-''}
