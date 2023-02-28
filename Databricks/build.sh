@@ -1,5 +1,5 @@
 #!/bin/bash
-# Copyright (c) 2022, NVIDIA CORPORATION.
+# Copyright (c) 2022-2023, NVIDIA CORPORATION.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -31,7 +31,6 @@ JAR_FILE=${JAR_FILE:-"rapids-4-spark_2.12-${JAR_VERSION}-cuda11.jar"}
 JAR_URL=${JAR_URL:-"${BASE_JAR_URL}/${VERSION}/${JAR_FILE}"}
 
 DRIVER_CONF_FILE=${DRIVER_CONF_FILE:-"00-custom-spark-driver-defaults.conf"}
-DATABRICKS_RUNTIME_VERSION=${DATABRICKS_RUNTIME_VERSION:-"10.4"}
 
 STAGE=${STAGE:-"with-alluxio"}
 

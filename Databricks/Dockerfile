@@ -59,6 +59,7 @@ RUN set -ex && \
         && /databricks/python3/bin/pip install \
             databricks-cli \
             ipython \
+            ipykernel==6.12.1 matplotlib==3.4.3 \
         && /databricks/python3/bin/pip install --force-reinstall \
             virtualenv \
         && /databricks/python3/bin/pip cache purge && \
@@ -83,9 +84,7 @@ RUN set -ex && \
 #############
 # Set all env variables
 #############
-ARG DATABRICKS_RUNTIME_VERSION=10.4
 ENV PYSPARK_PYTHON=/databricks/python3/bin/python3
-ENV DATABRICKS_RUNTIME_VERSION=${DATABRICKS_RUNTIME_VERSION}
 ENV LANG=C.UTF-8
 ENV USER=ubuntu
 ENV PATH=/usr/local/nvidia/bin:/databricks/python3/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/snap/bin
