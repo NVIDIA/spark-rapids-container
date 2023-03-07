@@ -48,7 +48,7 @@ RUN set -ex && \
                openjdk-8-jdk-headless iproute2 bash sudo coreutils procps gpg fuse openssh-server && \
     apt-get -y install cuda-cudart-dev-${CUDA_PKG_VERSION} cuda-cupti-dev-${CUDA_PKG_VERSION} cuda-driver-dev-${CUDA_PKG_VERSION} \
                cuda-nvcc-${CUDA_PKG_VERSION} cuda-thrust-${CUDA_PKG_VERSION} cuda-toolkit-${CUDA_PKG_VERSION}-config-common cuda-toolkit-11-config-common \
-               cuda-toolkit-config-common python3.8-dev libpq-dev libcairo2-dev build-essential unattended-upgrades cmake ccache \
+               cuda-toolkit-config-common python3.8-dev libpq5 libpq-dev libcairo2-dev build-essential unattended-upgrades cmake ccache \
                openmpi-bin linux-headers-5.4.0-117 linux-headers-5.4.0-117-generic linux-headers-generic libopenmpi-dev unixodbc-dev \
                sysstat ssh tmux supervisor && \
     apt-get install -y less vim && \
