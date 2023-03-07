@@ -59,7 +59,12 @@ RUN set -ex && \
         && /databricks/python3/bin/pip install \
             databricks-cli \
             ipython \
-            ipykernel==6.12.1 matplotlib==3.4.3 \
+            ipykernel==6.12.1 \
+            matplotlib==3.4.3 \
+            numpy==1.20.1 \
+            pandas==1.2.4 \
+            pyarrow==4.0.0 \
+            psycopg2==2.8.5 \
         && /databricks/python3/bin/pip install --force-reinstall \
             virtualenv \
         && /databricks/python3/bin/pip cache purge && \
