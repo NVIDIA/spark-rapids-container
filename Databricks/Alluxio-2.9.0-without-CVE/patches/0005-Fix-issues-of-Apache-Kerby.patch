@@ -1,0 +1,90 @@
+From b092a697931984deb0ad113bce7bb130e9b7abaf Mon Sep 17 00:00:00 2001
+From: Chong Gao <res_life@163.com>
+Date: Mon, 13 Mar 2023 18:04:36 +0800
+Subject: [PATCH] Fix issues of Apache Kerby
+
+Signed-off-by: Chong Gao <res_life@163.com>
+---
+ assembly/client/pom.xml  | 11 -----------
+ assembly/server/pom.xml  |  5 -----
+ core/client/hdfs/pom.xml |  8 ++++++++
+ core/server/pom.xml      |  1 -
+ 4 files changed, 8 insertions(+), 17 deletions(-)
+
+diff --git a/assembly/client/pom.xml b/assembly/client/pom.xml
+index 5b0ab608f2..bad8cfea86 100644
+--- a/assembly/client/pom.xml
++++ b/assembly/client/pom.xml
+@@ -41,22 +41,11 @@
+       <artifactId>alluxio-core-common</artifactId>
+       <version>${project.version}</version>
+     </dependency>
+-    <dependency>
+-      <groupId>org.alluxio</groupId>
+-      <artifactId>alluxio-examples</artifactId>
+-      <version>${project.version}</version>
+-    </dependency>
+     <dependency>
+       <groupId>org.alluxio</groupId>
+       <artifactId>alluxio-shell</artifactId>
+       <version>${project.version}</version>
+     </dependency>
+-    <dependency>
+-      <groupId>org.alluxio</groupId>
+-      <artifactId>alluxio-stress-shell</artifactId>
+-      <version>${project.version}</version>
+-    </dependency>
+-
+     <dependency>
+       <!-- Fix CVE: https://github.com/advisories/GHSA-fv22-xp26-mm9w -->
+       <!-- hadoop common use 5.3.0 version which has CVE -->
+diff --git a/assembly/server/pom.xml b/assembly/server/pom.xml
+index 1b829ef17c..502c137fa0 100644
+--- a/assembly/server/pom.xml
++++ b/assembly/server/pom.xml
+@@ -36,11 +36,6 @@
+       <artifactId>alluxio-core-server-master</artifactId>
+       <version>${project.version}</version>
+     </dependency>
+-    <dependency>
+-      <groupId>org.alluxio</groupId>
+-      <artifactId>alluxio-core-server-proxy</artifactId>
+-      <version>${project.version}</version>
+-    </dependency>
+     <dependency>
+       <groupId>org.alluxio</groupId>
+       <artifactId>alluxio-core-server-worker</artifactId>
+diff --git a/core/client/hdfs/pom.xml b/core/client/hdfs/pom.xml
+index a360410aa8..949d2fe6b0 100644
+--- a/core/client/hdfs/pom.xml
++++ b/core/client/hdfs/pom.xml
+@@ -45,6 +45,14 @@
+           <groupId>com.nimbusds</groupId>
+           <artifactId>nimbus-jose-jwt</artifactId>
+         </exclusion>
++        <exclusion>
++          <groupId>org.apache.kerby</groupId>
++          <artifactId>kerb-simplekdc</artifactId>
++        </exclusion>
++        <exclusion>
++          <groupId>org.apache.kerby</groupId>
++          <artifactId>kerb-core</artifactId>
++        </exclusion>
+       </exclusions>
+     </dependency>
+ 
+diff --git a/core/server/pom.xml b/core/server/pom.xml
+index 9679a9a5c7..894bdf59bd 100644
+--- a/core/server/pom.xml
++++ b/core/server/pom.xml
+@@ -25,7 +25,6 @@
+   <modules>
+     <module>common</module>
+     <module>master</module>
+-    <module>proxy</module>
+     <module>worker</module>
+   </modules>
+ 
+-- 
+2.34.1
+
