@@ -8,7 +8,7 @@ You will need to build the Docker container before using it in the Databricks en
 $ REPO_BASE=i-love-spark TAG_NAME=rapids-4-spark-databricks ./build.sh
 ```
 
-The script will then build an image with fully qualified tag: `i-love-spark/rapids-4-spark-databricks:22.10.0`. 
+The script will then build an image with fully qualified tag: `i-love-spark/rapids-4-spark-databricks:23.02.0`. 
 
 If you set `PUSH=true`, if the build completes successfully, the script will push it to specified repository. Only do this if you have authenticated using Docker to the repository and you have the appropriate permissions to push image artifacts.
 
@@ -16,9 +16,26 @@ If you set `PUSH=true`, if the build completes successfully, the script will pus
 $ REPO_BASE=i-love-spark TAG_NAME=rapids-4-spark-databricks PUSH=true ./build.sh
 ```
 
-There are other customizations possible, see the source in `build.sh` for more information.
+There are other customizations possible, below are all the environment variables that can be customized
+when running `build.sh`.
 
-Once this image is pushed to your repository, it is ready to be used on the Databricks environment.
+Standard environment variables: 
+
+* `REPO_BASE`: 
+* `TAG_NAME`: These 2 parameters (along with `VERSION`) form the fully qualified image tag for the built Docker image. For example, if you set `REPO_BASE=i-love-spark`, `TAG_NAME=rapids-4-spark-databricks`, and `VERSION=23.02.0`, the image you build will have the fully qualifed tag `i-love-spark/rapids-4-spark-databricks:23.02.0`.
+* `VERSION`: This parameter configures both the tag of the Docker image and the version of the rapids-4-spark Jar file that is pulled from Maven Central when building the Docker container image. The default value of this variable is `23.02.0`.
+* `TAG_VERSION`: Use this parameter to override the image tag version (e.g. specify `TAG_VERSION=foo` and the fully qualfied tag will be `i-love-spark/rapids-4-spark-databricks:foo` even though it will have the 23.02.0 jar file). This defaults to the value of `VERSION`.
+
+Advanced parameters. Use these parameters at your own risk:
+* `CUDA_VERSION`: Specify the version of CUDA to be used. The default value is `11.8.0`.
+* `JAR_VERSION`: Specify a different version of the JAR file to pull from maven central outside of the `VERSION` parameter. Use this in conjunction with `TAG_VERSION` to customize the JAR file within the Docker container image. This defaults to the value of `VERSION`.
+* `BASE_JAR_URL`: Specifies the Maven repository base to pull the JAR file from. This defaults to `https://repo1.maven.org/maven2/com/nvidia/rapids-4-spark_2.12`. Use this if you want to pull the JAR file from a different Maven repository.
+* `JAR_FILE`: Specifies the JAR file to download and/or filename that will be used on the container file system. This defaults to `rapids-4-spark_2.12-23.02.0-cuda11.jar`, which is the CUDA 11 qualified JAR with version `23.02.0`. When not specified directly, it will automatically update based on `VERSION` and `CUDA_VERSION` values.
+* `JAR_URL`: Use this to download directly a specific JAR file to be copied into the Docker container image. This defaults to a combination of `BASE_JAR_URL` and `JAR_FILE`. This is sometimes needed when the JAR file is not hosted in a Maven repository just yet. You can also specify a local file on your Docker host, which is
+useful for including a customized built JAR file.
+
+
+Once this image is pushed to your repository, it is ready to be used in the Databricks environment.
 
 ## Usage
 

@@ -22,10 +22,10 @@
 # https://github.com/databricks/containers/blob/master/experimental/ubuntu/ganglia/Dockerfile
 # https://github.com/dayananddevarapalli/containers/blob/main/webterminal/Dockerfile
 #############
-ARG CUDA_VERSION=11.5.2
+ARG CUDA_VERSION=11.8.0
 FROM nvidia/cuda:${CUDA_VERSION}-runtime-ubuntu20.04 as base
 
-ARG CUDA_PKG_VERSION=11-5
+ARG CUDA_PKG_VERSION=11-8
 
 #############
 # Install all needed libs
@@ -95,8 +95,8 @@ FROM base as with-plugin
 # Spark RAPIDS configuration
 #############
 ARG DRIVER_CONF_FILE=00-custom-spark-driver-defaults.conf
-ARG JAR_FILE=rapids-4-spark_2.12-22.12.0.jar
-ARG JAR_URL=https://repo1.maven.org/maven2/com/nvidia/rapids-4-spark_2.12/22.12.0/${JAR_FILE}
+ARG JAR_FILE=rapids-4-spark_2.12-23.02.0.jar
+ARG JAR_URL=https://repo1.maven.org/maven2/com/nvidia/rapids-4-spark_2.12/23.02.0/${JAR_FILE}
 ARG INIT_SCRIPT=init.sh
 COPY ${DRIVER_CONF_FILE} /databricks/driver/conf/00-custom-spark-driver-defaults.conf
 
