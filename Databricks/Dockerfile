@@ -249,6 +249,7 @@ ARG ALLUXIO_TAR_FILE="alluxio-${ALLUXIO_VERSION}-bin.tar.gz"
 ADD Alluxio-2.9.0-without-CVE /tmp/Alluxio-2.9.0-without-CVE
 # clone 2.9.0 source, fix CVE issues, compile, then install to /opt/alluxio-x.x.x
 RUN /tmp/Alluxio-2.9.0-without-CVE/build-from-src-and-fix-CVE.sh
+RUN ln -s ${ALLUXIO_HOME} /opt/alluxio
 RUN cp ${ALLUXIO_HOME}/client/alluxio-${ALLUXIO_VERSION}-client.jar /databricks/jars/
 
 #############
