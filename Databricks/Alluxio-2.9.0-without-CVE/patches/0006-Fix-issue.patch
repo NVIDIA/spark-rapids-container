@@ -1,0 +1,29 @@
+From 47607fc22d3e428cb4290bc833e4dddf2add9058 Mon Sep 17 00:00:00 2001
+From: Chong Gao <res_life@163.com>
+Date: Wed, 19 Apr 2023 17:49:44 +0800
+Subject: [PATCH] Fix issue
+
+---
+ assembly/server/pom.xml | 6 ++++++
+ 1 file changed, 6 insertions(+)
+
+diff --git a/assembly/server/pom.xml b/assembly/server/pom.xml
+index 502c137fa0..38002fda16 100644
+--- a/assembly/server/pom.xml
++++ b/assembly/server/pom.xml
+@@ -50,6 +50,12 @@
+       <groupId>org.alluxio</groupId>
+       <artifactId>alluxio-job-server</artifactId>
+       <version>${project.version}</version>
++      <exclusions>
++        <exclusion>
++          <groupId>net.minidev</groupId>
++          <artifactId>json-smart</artifactId>
++        </exclusion>
++      </exclusions>
+     </dependency>
+ <!--    <dependency>-->
+ <!--      <groupId>org.alluxio</groupId>-->
+-- 
+2.34.1
+
