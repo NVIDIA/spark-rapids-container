@@ -119,7 +119,6 @@ spark.rapids.sql.multiThreadedRead.numThreads 40
 
 4. In the `Environment variables` field, add the following lines:   
     `ENABLE_ALLUXIO=1`   
-    `ALLUXIO_HOME=/opt/alluxio-2.9.0`   
 ![Environment-Variables-View](img/environment-variables.png)
 
 5. Customize Alluxio configuration using the following configs if needed. These should be added in the `Environment variables` field if you wish to change them.
@@ -147,7 +146,7 @@ To verify the alluxio cluster is working, you can use the Web Terminal:
 4. Run the following command:
 
 ```bash
-$ /opt/alluxio-2.8.0/bin/alluxio fsadmin report
+$ /opt/alluxio/bin/alluxio fsadmin report
 ```
 
 5. You should see a line indicating the number of active workers, ensure this is equal to the configured number of workers you used for the cluster:
