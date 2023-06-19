@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "standalone-spark-k8s.fullname" . }}
+  labels:
+    {{- include "standalone-spark-k8s.labels" . | nindent 4 }}
+data:
+  spark-default.conf: |-
+    spark.worker.resource.gpu.amount 1
+    spark.worker.resource.gpu.discoveryScript /opt/spark/examples/src/main/scripts/getGpusResources.sh
